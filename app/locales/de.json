@@ -84,6 +84,15 @@
   "view_btn": "Ansehen",
   "admin_btn": "Admin",
 
+  "payment_link_label": "Zahlung:",
+  "pay_now_btn": "Jetzt bezahlen",
+  "payment_url_label": "Zahlungs-URL",
+  "payment_url_placeholder": "https://paypal.me/...",
+  "payment_url_hint": "Optional: Zahlungslink f\u00fcr alle Teilnehmer hinterlegen",
+  "col_paid": "Bezahlt",
+  "toggle_paid_title": "Bezahlstatus umschalten",
+  "paid_label": "Bezahlt",
+
   "invite_for": "Einladungslink f\u00fcr {name}:",
   "invite_hint": "Teile diesen Link privat. Die eingeladene Person wird als {name} identifiziert."
 }

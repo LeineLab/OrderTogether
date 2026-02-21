@@ -11,6 +11,7 @@ from app.auth import (
     OIDC_ENABLED,
     can_add_item,
     can_edit_item,
+    can_mark_paid,
     can_see_item,
     get_identity,
     is_order_admin,
@@ -45,6 +46,9 @@ def _items_response(request: Request, order: Order, identity: dict) -> HTMLRespo
     def _can_edit(ident, item, o):
         return can_edit_item(ident, item, o, is_admin)
 
+    def _can_mark_paid(ident, item, o):
+        return can_mark_paid(ident, item, is_admin)
+
     return render(
         "partials/items_list.html",
         request,
@@ -57,6 +61,7 @@ def _items_response(request: Request, order: Order, identity: dict) -> HTMLRespo
             "now": now,
             "deadline_passed": now > order.deadline,
             "can_edit_item": _can_edit,
+            "can_mark_paid": _can_mark_paid,
         },
     )
 
@@ -236,3 +241,34 @@ async def edit_form(
         request,
         {"order": order, "item": item, "edit": True, "identity": identity},
     )
+
+
+# ─── Toggle paid ──────────────────────────────────────────────────────────────
+
+
+@router.post("/orders/{order_id}/items/{item_id}/paid", response_class=HTMLResponse)
+async def toggle_paid(
+    request: Request,
+    order_id: str,
+    item_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    order = await _get_order(order_id, db)
+    identity = get_identity(request)
+    is_admin = is_order_admin(request, order)
+
+    result = await db.execute(
+        select(OrderItem).where(OrderItem.id == item_id, OrderItem.order_id == order_id)
+    )
+    item = result.scalar_one_or_none()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    if not can_mark_paid(identity, item, is_admin):
+        raise HTTPException(status_code=403, detail="Not allowed to mark this item")
+
+    item.paid = not item.paid
+    await db.commit()
+    await db.refresh(order, attribute_names=["items"])
+    await manager.broadcast(order_id)
+    return _items_response(request, order, identity)

@@ -29,6 +29,8 @@ async def migrate_db():
     new_columns = [
         "ALTER TABLE orders ADD COLUMN creator_identifier VARCHAR",
         "ALTER TABLE orders ADD COLUMN allow_oidc BOOLEAN NOT NULL DEFAULT 0",
+        "ALTER TABLE orders ADD COLUMN payment_url VARCHAR",
+        "ALTER TABLE order_items ADD COLUMN paid BOOLEAN NOT NULL DEFAULT 0",
     ]
     async with engine.begin() as conn:
         for stmt in new_columns:

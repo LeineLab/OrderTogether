@@ -11,6 +11,7 @@ from app.auth import (
     OIDC_ENABLED,
     can_add_item,
     can_edit_item,
+    can_mark_paid,
     can_see_item,
     get_identity,
     is_order_admin,
@@ -35,9 +36,12 @@ def _order_context(request: Request, order: Order, identity: dict) -> dict:
     visible_items = [
         i for i in order.items if can_see_item(identity, i, order, is_admin)
     ]
-    # Pre-curry can_edit_item with is_admin so templates keep the same call signature
+    # Pre-curry permission helpers with is_admin so templates keep the same call signature
     def _can_edit(ident, item, o):
         return can_edit_item(ident, item, o, is_admin)
+
+    def _can_mark_paid(ident, item, o):
+        return can_mark_paid(ident, item, is_admin)
 
     admin_url = (
         str(request.base_url).rstrip("/")
@@ -55,6 +59,7 @@ def _order_context(request: Request, order: Order, identity: dict) -> dict:
         "can_edit_item": _can_edit,
         "can_add": can_add_item(identity, order, is_admin),
         "admin_url": admin_url if is_admin else None,
+        "can_mark_paid": _can_mark_paid,
     }
 
 
@@ -291,13 +296,14 @@ async def update_settings(
     request: Request,
     order_id: str,
     allow_oidc: bool = Form(False),
+    payment_url: str = Form(""),
     db: AsyncSession = Depends(get_db),
 ):
     order = await _get_order(order_id, db)
     if not is_order_admin(request, order):
         raise HTTPException(status_code=403, detail="Only the admin can change settings")
-    # allow_oidc only has effect when invite_only is active
     order.allow_oidc = allow_oidc and order.invite_only
+    order.payment_url = payment_url.strip() or None
     await db.commit()
     return RedirectResponse(f"/orders/{order_id}", status_code=303)
 

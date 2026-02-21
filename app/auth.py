@@ -145,6 +145,18 @@ def can_edit_item(identity: dict, item, order, is_admin: bool = False) -> bool:
     return identity["id"] == item.person_identifier
 
 
+def can_mark_paid(identity: dict, item, is_admin: bool = False) -> bool:
+    """Return True if this identity may toggle the paid flag on an item.
+
+    Intentionally stricter than can_edit_item: only the item owner or admin
+    may mark payment regardless of open/anonymous mode, and the check is
+    independent of the order deadline (payment always stays editable).
+    """
+    if is_admin:
+        return True
+    return identity["id"] == item.person_identifier
+
+
 def can_see_item(identity: dict, item, order, is_admin: bool = False) -> bool:
     """Return True if this identity may see the given item (privacy mode aware)."""
     if not order.privacy_mode:

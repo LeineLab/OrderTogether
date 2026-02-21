@@ -7,6 +7,7 @@
       <th>{{ _("col_qty") }}</th>
       <th>{{ _("col_sku") }}</th>
       <th>{{ _("col_note") }}</th>
+      <th>{{ _("col_paid") }}</th>
       <th>{{ _("col_actions") }}</th>
     </tr>
   </thead>
@@ -24,6 +25,20 @@
       <td>{{ item.quantity }}</td>
       <td>{{ item.product_sku or '—' }}</td>
       <td>{{ item.note or '—' }}</td>
+      <td class="paid-cell">
+        {% if can_mark_paid(identity, item, order) %}
+        <button class="btn btn-xs{% if item.paid %} btn-paid{% endif %}"
+                hx-post="/orders/{{ order.id }}/items/{{ item.id }}/paid"
+                hx-target="#items-table"
+                hx-swap="innerHTML"
+                title="{{ _('toggle_paid_title') }}">
+          {% if item.paid %}✓{% else %}○{% endif %}
+        </button>
+        {% elif item.paid %}
+        <span class="paid-indicator" title="{{ _('paid_label') }}">✓</span>
+        {% else %}&nbsp;
+        {% endif %}
+      </td>
       <td class="actions">
         {% if can_edit_item(identity, item, order) and (is_creator or not deadline_passed) %}
         <button class="btn btn-xs"

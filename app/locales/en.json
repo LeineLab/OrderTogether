@@ -84,6 +84,15 @@
   "view_btn": "View",
   "admin_btn": "Admin",
 
+  "payment_link_label": "Payment:",
+  "pay_now_btn": "Pay now",
+  "payment_url_label": "Payment URL",
+  "payment_url_placeholder": "https://paypal.me/...",
+  "payment_url_hint": "Optional: share a payment link with all participants",
+  "col_paid": "Paid",
+  "toggle_paid_title": "Toggle paid status",
+  "paid_label": "Paid",
+
   "invite_for": "Invite link for {name}:",
   "invite_hint": "Share this link privately. The recipient will be identified as {name}."
 }

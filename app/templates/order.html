@@ -39,6 +39,16 @@
   </div>
   {% endif %}
 
+  <!-- Payment link — shown to all participants when set by admin -->
+  {% if order.payment_url %}
+  <div class="payment-box">
+    <span>{{ _("payment_link_label") }}</span>
+    <a href="{{ order.payment_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-pay">
+      {{ _("pay_now_btn") }} ↗
+    </a>
+  </div>
+  {% endif %}
+
   <div class="order-body">
     <!-- Left: Items table -->
     <section class="items-section">
@@ -125,9 +135,15 @@
       </ul>
       {% endif %}
 
-      {% if order.invite_only and oidc_enabled %}
       <h4>{{ _("order_settings_title") }}</h4>
       <form action="/orders/{{ order.id }}/settings" method="post">
+        <div class="form-group">
+          <label>{{ _("payment_url_label") }}</label>
+          <input type="url" name="payment_url" value="{{ order.payment_url or '' }}"
+                 placeholder="{{ _('payment_url_placeholder') }}">
+          <small>{{ _("payment_url_hint") }}</small>
+        </div>
+        {% if order.invite_only and oidc_enabled %}
         <div class="form-group checkbox-group">
           <label>
             <input type="checkbox" name="allow_oidc" value="true"{% if order.allow_oidc %} checked{% endif %}>
@@ -135,9 +151,9 @@
           </label>
           <small class="hint">{{ _("allow_oidc_hint") }}</small>
         </div>
+        {% endif %}
         <button type="submit" class="btn btn-sm btn-primary">{{ _("save_settings_btn") }}</button>
       </form>
-      {% endif %}
     </aside>
     {% endif %}
   </div>
