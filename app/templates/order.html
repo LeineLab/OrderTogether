@@ -156,12 +156,36 @@
     htmx.ajax("GET", ITEMS_URL, { target: "#items-table", swap: "innerHTML" });
   }
 
-  {% if not is_creator %}
-  // Deadline-based form visibility — updated via WS when admin extends deadline
+  // ── Deadline display (all users) ──────────────────────────────────────────
   let deadlineMs = new Date("{{ order.deadline.isoformat() }}Z").getTime();
+
+  function updateDeadlineDisplay() {
+    const display = document.getElementById("deadline-display");
+    const status  = document.getElementById("deadline-status");
+    if (!display || !status) return;
+
+    const fmt = new Intl.DateTimeFormat([], {
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit",
+      timeZone: "{{ tz_name }}"
+    });
+    display.textContent = fmt.format(new Date(deadlineMs)) + " {{ tz_name }}";
+
+    if (Date.now() >= deadlineMs) {
+      status.className   = "badge badge-closed";
+      status.textContent = "{{ _('status_closed') }}";
+    } else {
+      status.className   = "badge badge-open";
+      status.textContent = "{{ _('status_open') }}";
+    }
+  }
+
+  {% if not is_creator %}
+  // ── Form visibility (non-admin only) ──────────────────────────────────────
   let deadlineTimer = null;
 
   function checkDeadline() {
+    updateDeadlineDisplay();
     const panel = document.getElementById("add-item-panel");
     const warning = document.getElementById("closed-warning");
     clearTimeout(deadlineTimer);
@@ -197,12 +221,14 @@
     ws.onmessage = function (event) {
       try {
         const data = JSON.parse(event.data);
-        {% if not is_creator %}
         if (data.deadline) {
           deadlineMs = new Date(data.deadline).getTime();
-          checkDeadline();
+          {% if not is_creator %}
+          checkDeadline();       // updates display + form visibility
+          {% else %}
+          updateDeadlineDisplay(); // admin: update header display only
+          {% endif %}
         }
-        {% endif %}
       } catch (e) {}
       // Debounce: if multiple signals arrive quickly, only refresh once
       clearTimeout(debounce);
