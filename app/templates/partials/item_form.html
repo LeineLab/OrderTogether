@@ -1,0 +1,85 @@
+{% if edit %}
+{# Inline edit form — renders as a table row replacement #}
+<tr id="item-row-{{ item.id }}">
+  <td colspan="6">
+    <form hx-put="/orders/{{ order.id }}/items/{{ item.id }}"
+          hx-target="#items-table"
+          hx-swap="innerHTML"
+          class="inline-edit-form">
+      <div class="inline-fields">
+        {% if identity.type == "token" %}
+          <input type="text" name="person_name" value="{{ item.person_name }}" readonly
+                 title="{{ _('name_locked_hint') }}" style="opacity:.6;cursor:not-allowed">
+        {% else %}
+          <input type="text" name="person_name" value="{{ item.person_name }}"
+                 placeholder="{{ _('name_label') }}" required>
+        {% endif %}
+        <input type="text" name="product_name" value="{{ item.product_name }}"
+               placeholder="{{ _('product_label') }}" required>
+        <input type="text" name="quantity" value="{{ item.quantity }}"
+               placeholder="{{ _('qty_label') }}" style="width:4rem">
+        <input type="text" name="product_sku" value="{{ item.product_sku or '' }}"
+               placeholder="{{ _('sku_label') }}">
+        <input type="url"  name="product_url" value="{{ item.product_url or '' }}"
+               placeholder="{{ _('product_url_label') }}">
+        <input type="text" name="note" value="{{ item.note or '' }}"
+               placeholder="{{ _('note_label') }}">
+      </div>
+      <div class="inline-actions">
+        <button type="submit" class="btn btn-sm btn-primary">{{ _("save_btn") }}</button>
+        <button type="button" class="btn btn-sm"
+                hx-get="/orders/{{ order.id }}"
+                hx-target="#items-table"
+                hx-swap="innerHTML"
+                hx-select="#items-table">{{ _("cancel_btn") }}</button>
+      </div>
+    </form>
+  </td>
+</tr>
+{% else %}
+{# Add-item form — standalone panel #}
+<form hx-post="/orders/{{ order.id }}/items"
+      hx-target="#items-table"
+      hx-swap="innerHTML"
+      hx-on::after-request="if(event.detail.successful) this.reset()"
+      method="post">
+  <div class="form-row">
+    <div class="form-group">
+      <label>{{ _("name_label") }}</label>
+      {% if identity.type == "token" %}
+        <input type="text" name="person_name" value="{{ identity.name }}" readonly
+               title="{{ _('name_locked_hint') }}" style="opacity:.6;cursor:not-allowed">
+      {% else %}
+        <input type="text" name="person_name" value="{{ identity.name }}"
+               placeholder="{{ _('name_label') }}" required>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      <label>{{ _("product_label") }}</label>
+      <input type="text" name="product_name" placeholder="{{ _('product_placeholder') }}" required>
+    </div>
+    <div class="form-group form-group-sm">
+      <label>{{ _("qty_label") }}</label>
+      <input type="text" name="quantity" value="1" placeholder="1">
+    </div>
+  </div>
+  <details class="optional-fields">
+    <summary>{{ _("optional_details") }}</summary>
+    <div class="form-row">
+      <div class="form-group">
+        <label>{{ _("sku_label") }}</label>
+        <input type="text" name="product_sku" placeholder="ABC-123">
+      </div>
+      <div class="form-group">
+        <label>{{ _("product_url_label") }}</label>
+        <input type="url" name="product_url" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>{{ _("note_label") }}</label>
+        <input type="text" name="note" placeholder="{{ _('note_placeholder') }}">
+      </div>
+    </div>
+  </details>
+  <button type="submit" class="btn btn-primary">{{ _("add_item_btn") }}</button>
+</form>
+{% endif %}

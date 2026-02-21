@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}OrderTogether — {{ _("home_title") }}{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <h1>{{ _("home_title") }}</h1>
+  <p class="lead">{{ _("home_subtitle") }}</p>
+
+  <form action="/orders" method="post" class="card">
+    <div class="form-group">
+      <label for="vendor_name">{{ _("vendor_name_label") }}</label>
+      <input type="text" id="vendor_name" name="vendor_name" required
+             placeholder="{{ _('vendor_name_placeholder') }}">
+    </div>
+
+    <div class="form-group">
+      <label for="vendor_url">{{ _("vendor_url_label") }}</label>
+      <input type="url" id="vendor_url" name="vendor_url" required placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+      <label for="deadline">{{ _("deadline_label") }}</label>
+      <input type="datetime-local" id="deadline" name="deadline" required>
+    </div>
+
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" id="invite_only" name="invite_only" value="true"
+               onchange="document.getElementById('invite-sub-options').style.display = this.checked ? '' : 'none'">
+        {{ _("invite_only_label") }} <small>({{ _("invite_only_hint") }})</small>
+      </label>
+    </div>
+
+    <div id="invite-sub-options" style="display:none; padding-left:1.5rem;">
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" name="privacy_mode" value="true">
+          {{ _("privacy_mode_label") }} <small>({{ _("privacy_mode_hint") }})</small>
+        </label>
+      </div>
+      {% if oidc_enabled %}
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" name="allow_oidc" value="true">
+          {{ _("allow_oidc_label") }} <small>({{ _("allow_oidc_hint") }})</small>
+        </label>
+      </div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ _("create_order_btn") }}</button>
+  </form>
+</div>
+{% endblock %}

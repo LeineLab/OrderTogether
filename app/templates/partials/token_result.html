@@ -1,0 +1,9 @@
+<div class="token-result">
+  <p>{{ _("invite_for", name=display_name) }}</p>
+  <div class="share-url-row">
+    <input type="text" value="{{ join_url }}" readonly>
+    <button onclick="navigator.clipboard.writeText('{{ join_url }}')"
+            class="btn btn-sm">{{ _("copy_btn") }}</button>
+  </div>
+  <p class="hint">{{ _("invite_hint", name=display_name) }}</p>
+</div>

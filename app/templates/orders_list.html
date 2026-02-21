@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ _("my_orders_title") }} — OrderTogether{% endblock %}
+{% block content %}
+<div class="container">
+
+  <div class="order-header">
+    <h1>{{ _("my_orders_title") }}</h1>
+    <div class="order-actions">
+      <a href="/" class="btn btn-sm btn-primary">{{ _("create_order_btn") }}</a>
+    </div>
+  </div>
+
+  {% if order_rows %}
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th>{{ _("col_vendor") }}</th>
+        <th>{{ _("col_deadline") }}</th>
+        <th>{{ _("col_items") }}</th>
+        <th>{{ _("col_status") }}</th>
+        <th>{{ _("col_actions") }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in order_rows %}
+      <tr>
+        <td><a href="/orders/{{ row.order.id }}">{{ row.order.vendor_name }}</a></td>
+        <td>{{ row.order.deadline | localtime }} {{ tz_name }}</td>
+        <td>{{ row.item_count }}</td>
+        <td>
+          {% if row.deadline_passed %}
+            <span class="badge badge-closed">{{ _("status_closed") }}</span>
+          {% else %}
+            <span class="badge badge-open">{{ _("status_open") }}</span>
+          {% endif %}
+          {% if row.order.invite_only %}
+            <span class="badge badge-invite">{{ _("status_invite_only") }}</span>
+          {% endif %}
+        </td>
+        <td class="actions">
+          <a href="/orders/{{ row.order.id }}" class="btn btn-xs">{{ _("view_btn") }}</a>
+          <a href="{{ row.admin_url }}" class="btn btn-xs">{{ _("admin_btn") }}</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty-state">{{ _("my_orders_empty") }}</p>
+  {% endif %}
+
+</div>
+{% endblock %}

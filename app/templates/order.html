@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}{{ order.vendor_name }} — OrderTogether{% endblock %}
+{% block content %}
+<div class="container">
+
+  <!-- Order header -->
+  <div class="order-header">
+    <div>
+      <h1>{{ order.vendor_name }}</h1>
+      <p>
+        <a href="{{ order.vendor_url }}" target="_blank" rel="noopener">{{ _("open_store_link") }}</a>
+        &nbsp;·&nbsp;
+        {{ _("deadline_prefix") }} <strong id="deadline-display">{{ order.deadline | localtime }} {{ tz_name }}</strong>
+        {% if now > order.deadline %}
+          <span id="deadline-status" class="badge badge-closed">{{ _("status_closed") }}</span>
+        {% else %}
+          <span id="deadline-status" class="badge badge-open">{{ _("status_open") }}</span>
+        {% endif %}
+        {% if order.invite_only %}
+          <span class="badge badge-invite">{{ _("status_invite_only") }}</span>
+        {% endif %}
+      </p>
+    </div>
+    <div class="order-actions">
+      <a href="/orders/{{ order.id }}/export?group=person" class="btn btn-sm">{{ _("export_by_person") }}</a>
+      <a href="/orders/{{ order.id }}/export?group=product" class="btn btn-sm">{{ _("export_by_product") }}</a>
+    </div>
+  </div>
+
+  <!-- Share link — hidden for invite-only orders (participants use invite links instead) -->
+  {% if not order.invite_only %}
+  <div class="share-box">
+    <label>{{ _("share_link_label") }}</label>
+    <div class="share-url-row">
+      <input type="text" value="{{ request.url }}" readonly id="share-url">
+      <button onclick="navigator.clipboard.writeText(document.getElementById('share-url').value)"
+              class="btn btn-sm">{{ _("copy_btn") }}</button>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="order-body">
+    <!-- Left: Items table -->
+    <section class="items-section">
+      <h2>{{ _("items_title") }}</h2>
+      <div id="items-table">
+        {% include "partials/items_list.html" %}
+      </div>
+
+      {% if is_creator %}
+        {# Admin: always show add form — deadline does not restrict #}
+        {% if can_add %}
+        <div class="add-item-panel card">
+          <h3>{{ _("add_item_title") }}</h3>
+          {% include "partials/item_form.html" %}
+        </div>
+        {% endif %}
+      {% else %}
+        {# Non-admin: visibility controlled by JS deadline timer #}
+        {% if can_add %}
+        <div id="add-item-panel" class="add-item-panel card"{% if deadline_passed %} style="display:none"{% endif %}>
+          <h3>{{ _("add_item_title") }}</h3>
+          {% include "partials/item_form.html" %}
+          <p id="add-item-error" class="form-error" style="display:none"></p>
+        </div>
+        {% else %}
+        <div class="invite-only-notice">
+          <p>{{ _("invite_only_notice") }}</p>
+        </div>
+        {% endif %}
+        <div id="closed-warning" class="closed-warning"{% if not deadline_passed %} style="display:none"{% endif %}>
+          <p>{{ _("order_closed_warning") }}</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- Right: Admin panel -->
+    {% if is_creator %}
+    <aside class="admin-panel card">
+      <h3>{{ _("admin_panel_title") }}</h3>
+
+      <h4>{{ _("admin_url_label") }}</h4>
+      <p class="hint">{{ _("admin_url_hint") }}</p>
+      <div class="share-url-row" style="margin-bottom:.5rem">
+        <input type="text" value="{{ admin_url }}" readonly id="admin-url">
+        <button onclick="navigator.clipboard.writeText(document.getElementById('admin-url').value)"
+                class="btn btn-sm">{{ _("copy_btn") }}</button>
+      </div>
+
+      <h4>{{ _("extend_deadline_title") }}</h4>
+      <form action="/orders/{{ order.id }}/deadline" method="post">
+        <div class="form-group">
+          <label>{{ _("new_deadline_label") }}</label>
+          <input type="datetime-local" name="new_deadline" required
+                 value="{{ order.deadline | localtime('%Y-%m-%dT%H:%M') }}">
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary">{{ _("extend_btn") }}</button>
+      </form>
+
+      <h4>{{ _("generate_invite_title") }}</h4>
+      <form hx-post="/orders/{{ order.id }}/tokens"
+            hx-target="#token-result"
+            hx-swap="innerHTML">
+        <div class="form-group">
+          <label for="display_name">{{ _("guest_name_label") }}</label>
+          <input type="text" id="display_name" name="display_name" required
+                 placeholder="{{ _('guest_name_placeholder') }}">
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary">{{ _("generate_link_btn") }}</button>
+      </form>
+      <div id="token-result"></div>
+
+      {% if order.tokens %}
+      <h4>{{ _("existing_invites_title") }}</h4>
+      <ul class="token-list">
+        {% for tok in order.tokens %}
+        <li>
+          <strong>{{ tok.display_name }}</strong>
+          <small>
+            <a href="{{ request.base_url }}orders/{{ order.id }}/join/{{ tok.token }}"
+               target="_blank">{{ _("invite_link_text") }}</a>
+          </small>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% if order.invite_only and oidc_enabled %}
+      <h4>{{ _("order_settings_title") }}</h4>
+      <form action="/orders/{{ order.id }}/settings" method="post">
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" name="allow_oidc" value="true"{% if order.allow_oidc %} checked{% endif %}>
+            {{ _("allow_oidc_label") }}
+          </label>
+          <small class="hint">{{ _("allow_oidc_hint") }}</small>
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary">{{ _("save_settings_btn") }}</button>
+      </form>
+      {% endif %}
+    </aside>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const ORDER_ID = "{{ order.id }}";
+  const ITEMS_URL = "/orders/" + ORDER_ID + "/items";
+  const WS_URL = (location.protocol === "https:" ? "wss:" : "ws:") +
+                 "//" + location.host + "/orders/" + ORDER_ID + "/ws";
+  let debounce = null;
+
+  function refresh() {
+    htmx.ajax("GET", ITEMS_URL, { target: "#items-table", swap: "innerHTML" });
+  }
+
+  {% if not is_creator %}
+  // Deadline-based form visibility — updated via WS when admin extends deadline
+  let deadlineMs = new Date("{{ order.deadline.isoformat() }}Z").getTime();
+  let deadlineTimer = null;
+
+  function checkDeadline() {
+    const panel = document.getElementById("add-item-panel");
+    const warning = document.getElementById("closed-warning");
+    clearTimeout(deadlineTimer);
+    if (Date.now() >= deadlineMs) {
+      if (panel)   panel.style.display   = "none";
+      if (warning) warning.style.display = "";
+    } else {
+      if (panel)   panel.style.display   = "";
+      if (warning) warning.style.display = "none";
+      deadlineTimer = setTimeout(checkDeadline, deadlineMs - Date.now());
+    }
+  }
+  checkDeadline();
+
+  // Show inline error when item POST is rejected (e.g. deadline already passed)
+  document.body.addEventListener("htmx:afterRequest", function (evt) {
+    if (evt.detail.requestConfig.verb !== "post") return;
+    if (!evt.detail.requestConfig.path.includes("/items")) return;
+    const err = document.getElementById("add-item-error");
+    if (!err) return;
+    if (!evt.detail.successful) {
+      err.textContent = "{{ _('add_item_error') }}";
+      err.style.display = "block";
+    } else {
+      err.style.display = "none";
+    }
+  });
+  {% endif %}
+
+  function connect() {
+    const ws = new WebSocket(WS_URL);
+
+    ws.onmessage = function (event) {
+      try {
+        const data = JSON.parse(event.data);
+        {% if not is_creator %}
+        if (data.deadline) {
+          deadlineMs = new Date(data.deadline).getTime();
+          checkDeadline();
+        }
+        {% endif %}
+      } catch (e) {}
+      // Debounce: if multiple signals arrive quickly, only refresh once
+      clearTimeout(debounce);
+      debounce = setTimeout(refresh, 150);
+    };
+
+    ws.onclose = function () {
+      // Reconnect after a short back-off
+      setTimeout(connect, 3000);
+    };
+
+    ws.onerror = function () {
+      ws.close();
+    };
+  }
+
+  connect();
+})();
+</script>
+{% endblock %}
