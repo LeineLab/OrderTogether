@@ -342,6 +342,79 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
   font-weight: 600;
 }
 
+/* ── Inline qty input (narrow on desktop, full-width on mobile) ──────── */
+.input-qty { width: 4rem; }
+
 /* ── HTMX loading indicator ──────────────────────────────────────────── */
 .htmx-indicator { opacity: 0; transition: opacity .2s; }
 .htmx-request .htmx-indicator { opacity: 1; }
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+
+/* Tablet: items table scrollable, order body already collapses at 800px */
+@media (max-width: 800px) {
+  #items-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+/* Small screens (phones landscape + large phones portrait) */
+@media (max-width: 640px) {
+  main { padding: 1.25rem .875rem; }
+
+  h1 { font-size: 1.4rem; }
+
+  /* Header nav: allow wrapping so the brand never gets squeezed */
+  header { padding: 0 .875rem; }
+  header nav {
+    height: auto;
+    min-height: 48px;
+    flex-wrap: wrap;
+    padding: .5rem 0;
+    gap: .5rem;
+  }
+  .nav-right { flex-wrap: wrap; gap: .4rem; }
+
+  /* Order header: stack title and export buttons */
+  .order-header { flex-direction: column; gap: .75rem; }
+  .order-actions { flex-wrap: wrap; }
+  .order-actions .btn { flex: 1 1 auto; justify-content: center; text-align: center; }
+
+  /* Share and payment boxes: stack input + button */
+  .share-url-row { flex-direction: column; }
+  .share-url-row .btn { align-self: flex-start; }
+  .payment-box { flex-wrap: wrap; }
+
+  /* Items table: hide optional columns and tighten cell padding */
+  .items-table th:nth-child(4),
+  .items-table td:nth-child(4),
+  .items-table th:nth-child(5),
+  .items-table td:nth-child(5) { display: none; }
+
+  .items-table th,
+  .items-table td { padding: .45rem .55rem; font-size: .85rem; }
+
+  /* Inline edit form: stack inputs vertically */
+  .inline-fields { flex-direction: column; }
+  .inline-fields input { width: 100%; }
+  .input-qty { width: 100%; }
+
+  /* Ensure touch targets are comfortably tappable */
+  .btn-xs { min-height: 32px; padding: .3rem .6rem; }
+  .btn-sm { min-height: 36px; }
+}
+
+/* Very small phones (portrait) */
+@media (max-width: 400px) {
+  main { padding: 1rem .75rem; }
+
+  header { padding: 0 .75rem; }
+
+  .share-box,
+  .payment-box { padding: .6rem .75rem; }
+
+  .items-table th,
+  .items-table td { padding: .35rem .4rem; font-size: .8rem; }
+
+  /* Stack export buttons each on their own line */
+  .order-actions { flex-direction: column; }
+  .order-actions .btn { width: 100%; }
+}

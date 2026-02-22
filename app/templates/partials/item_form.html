@@ -1,7 +1,7 @@
 {% if edit %}
 {# Inline edit form — renders as a table row replacement #}
 <tr id="item-row-{{ item.id }}">
-  <td colspan="6">
+  <td colspan="7">
     <form hx-put="/orders/{{ order.id }}/items/{{ item.id }}"
           hx-target="#items-table"
           hx-swap="innerHTML"
@@ -17,7 +17,7 @@
         <input type="text" name="product_name" value="{{ item.product_name }}"
                placeholder="{{ _('product_label') }}" required>
         <input type="text" name="quantity" value="{{ item.quantity }}"
-               placeholder="{{ _('qty_label') }}" style="width:4rem">
+               placeholder="{{ _('qty_label') }}" class="input-qty">
         <input type="text" name="product_sku" value="{{ item.product_sku or '' }}"
                placeholder="{{ _('sku_label') }}">
         <input type="url"  name="product_url" value="{{ item.product_url or '' }}"
