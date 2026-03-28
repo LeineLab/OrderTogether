@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.config import LOCAL_TZ, TIMEZONE
 from app.database import init_db, migrate_db
@@ -17,6 +18,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "changeme-please-set-in-env")
 
 app = FastAPI(title="OrderTogether")
 
+_trusted_hosts = os.getenv("TRUSTED_HOSTS", "*")
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=_trusted_hosts)
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, session_cookie="ot_session")
 
 # Static files
