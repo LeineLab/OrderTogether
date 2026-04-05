@@ -16,24 +16,31 @@ A lightweight self-hosted web app for coordinating group orders. Create an order
 
 ## Quick Start (Docker)
 
+Create a directory, paste the `compose.yml` and an edited version of the `.env.example` as `.env` and run `docker compose up -d`.
+
 ```bash
+git clone https://github.com/LeineLab/OrderTogether.git
 cp .env.example .env
 # Edit .env — at minimum set SECRET_KEY
-docker compose up --build
+editor .env # using your default editor, vi/nano/...
+docker compose up -d # start in daemon-mode (background)
 ```
 
 App is available at <http://localhost:8000>. The SQLite database is stored in `./data/` (volume-mounted).
 
 ## Local Development
 
+Or usage without a docker environment.
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
-cp .env.example .env
+cp .env.example .env # edit in testing not needed, still recommended
 uvicorn app.main:app --reload
 ```
+
+Or use a custom built docker container, use the `build: .` instead of the `image:`-option in the `compose.yml`.
 
 ## Configuration
 
