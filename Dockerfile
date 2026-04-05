@@ -1,5 +1,7 @@
 FROM python:3.12-slim
 
+LABEL org.opencontainers.image.source="https://github.com/leinelab/ordertogether"
+
 WORKDIR /app
 
 RUN useradd -m -u 1000 appuser
