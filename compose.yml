@@ -1,6 +1,7 @@
 services:
   web:
-    build: .
+    #build: . # For dev builds only
+    image: ghcr.io/leinelab/ordertogether
     ports:
       - "8000:8000"
     volumes:
