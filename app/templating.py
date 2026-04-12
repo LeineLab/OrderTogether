@@ -10,7 +10,7 @@ def render(template_name: str, request: Request, ctx: dict) -> _TemplateResponse
     from app.main import templates  # lazy import avoids circular dependency
 
     lang = detect_language(request.headers.get("accept-language", ""))
-    ctx.setdefault("request", request)
+    ctx.pop("request", None)
     ctx["_"] = get_translator(lang)
     ctx["lang"] = lang
-    return templates.TemplateResponse(template_name, ctx)
+    return templates.TemplateResponse(request, template_name, ctx)
