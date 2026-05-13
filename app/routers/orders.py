@@ -1,8 +1,8 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -18,8 +18,8 @@ from app.auth import (
     set_order_admin,
     sign_token,
 )
-from app.config import LOCAL_TZ
-from app.database import get_db
+from app.config import LOCAL_TZ, RECEIPT_UPLOAD_ENABLED
+from app.database import RECEIPT_DIR, RECEIPT_TTL_DAYS, get_db
 from app.export import export_csv
 from app.models import EmailToken, Order, OrderItem
 from app.templating import render
@@ -47,6 +47,10 @@ def _order_context(request: Request, order: Order, identity: dict) -> dict:
         str(request.base_url).rstrip("/")
         + f"/orders/{order.id}/admin/{order.admin_token}"
     )
+    receipt_expires_at = (
+        order.receipt_uploaded_at + timedelta(days=RECEIPT_TTL_DAYS)
+        if order.receipt_uploaded_at else None
+    )
     return {
         "request": request,
         "order": order,
@@ -60,6 +64,8 @@ def _order_context(request: Request, order: Order, identity: dict) -> dict:
         "can_add": can_add_item(identity, order, is_admin),
         "admin_url": admin_url if is_admin else None,
         "can_mark_paid": _can_mark_paid,
+        "receipt_expires_at": receipt_expires_at,
+        "receipt_upload_enabled": RECEIPT_UPLOAD_ENABLED,
     }
 
 
@@ -321,6 +327,90 @@ async def update_settings(
     order.payment_url = payment_url.strip() or None
     order.public_listing = public_listing
     await db.commit()
+    return RedirectResponse(f"/orders/{order_id}", status_code=303)
+
+
+# ─── Receipt upload / serve / delete ─────────────────────────────────────────
+
+_ALLOWED_TYPES = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "application/pdf": ".pdf",
+}
+_RECEIPT_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+
+
+@router.post("/orders/{order_id}/receipt")
+async def upload_receipt(
+    request: Request,
+    order_id: str,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    if not RECEIPT_UPLOAD_ENABLED:
+        raise HTTPException(status_code=404)
+    order = await _get_order(order_id, db)
+    if not is_order_admin(request, order):
+        raise HTTPException(status_code=403, detail="Only the admin can upload a receipt")
+
+    ext = _ALLOWED_TYPES.get(file.content_type)
+    if ext is None:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, or PDF files are allowed")
+
+    content = await file.read()
+    if len(content) > _RECEIPT_MAX_BYTES:
+        raise HTTPException(status_code=413, detail="File too large (max 10 MB)")
+
+    # Remove previous receipt if any
+    if order.receipt_filename:
+        (RECEIPT_DIR / order.receipt_filename).unlink(missing_ok=True)
+
+    filename = f"{uuid.uuid4()}{ext}"
+    (RECEIPT_DIR / filename).write_bytes(content)
+
+    order.receipt_filename = filename
+    order.receipt_uploaded_at = datetime.utcnow()
+    await db.commit()
+    return RedirectResponse(f"/orders/{order_id}", status_code=303)
+
+
+@router.get("/orders/{order_id}/receipt")
+async def serve_receipt(order_id: str, db: AsyncSession = Depends(get_db)):
+    order = await _get_order(order_id, db)
+    if not order.receipt_filename:
+        raise HTTPException(status_code=404, detail="No receipt uploaded")
+
+    path = RECEIPT_DIR / order.receipt_filename
+    if not path.exists():
+        order.receipt_filename = None
+        order.receipt_uploaded_at = None
+        await db.commit()
+        raise HTTPException(status_code=404, detail="Receipt file not found")
+
+    media_type = next(
+        (ct for ct, e in _ALLOWED_TYPES.items() if order.receipt_filename.endswith(e)),
+        "application/octet-stream",
+    )
+    return FileResponse(path, media_type=media_type, headers={"Content-Disposition": "inline"})
+
+
+@router.post("/orders/{order_id}/receipt/delete")
+async def delete_receipt(
+    request: Request,
+    order_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    if not RECEIPT_UPLOAD_ENABLED:
+        raise HTTPException(status_code=404)
+    order = await _get_order(order_id, db)
+    if not is_order_admin(request, order):
+        raise HTTPException(status_code=403, detail="Only the admin can delete a receipt")
+
+    if order.receipt_filename:
+        (RECEIPT_DIR / order.receipt_filename).unlink(missing_ok=True)
+        order.receipt_filename = None
+        order.receipt_uploaded_at = None
+        await db.commit()
     return RedirectResponse(f"/orders/{order_id}", status_code=303)
 
 

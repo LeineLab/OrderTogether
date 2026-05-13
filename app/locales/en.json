@@ -99,5 +99,15 @@
   "public_listing_label": "List on public open orders",
   "public_listing_hint": "show this order on the start page so anyone can join",
   "public_orders_title": "Open Orders",
-  "join_btn": "Join"
+  "join_btn": "Join",
+
+  "receipt_title": "Receipt / Invoice",
+  "receipt_label": "Receipt:",
+  "receipt_upload_label": "Upload receipt or invoice",
+  "receipt_upload_hint": "JPEG, PNG, or PDF — max 10 MB. Replaces any existing file.",
+  "receipt_uploaded_hint": "Active receipt — expires {date}.",
+  "receipt_expires_hint": "Expires {date}",
+  "view_receipt_btn": "View receipt",
+  "delete_receipt_btn": "Delete",
+  "upload_receipt_btn": "Upload"
 }

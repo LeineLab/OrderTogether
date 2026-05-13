@@ -99,5 +99,15 @@
   "public_listing_label": "In offenen Bestellungen anzeigen",
   "public_listing_hint": "diese Bestellung auf der Startseite anzeigen, damit jeder mitmachen kann",
   "public_orders_title": "Offene Bestellungen",
-  "join_btn": "Mitmachen"
+  "join_btn": "Mitmachen",
+
+  "receipt_title": "Beleg / Rechnung",
+  "receipt_label": "Beleg:",
+  "receipt_upload_label": "Beleg oder Rechnung hochladen",
+  "receipt_upload_hint": "JPEG, PNG oder PDF — max. 10 MB. Ersetzt eine vorhandene Datei.",
+  "receipt_uploaded_hint": "Aktiver Beleg — l\u00e4uft ab am {date}.",
+  "receipt_expires_hint": "L\u00e4uft ab am {date}",
+  "view_receipt_btn": "Beleg ansehen",
+  "delete_receipt_btn": "L\u00f6schen",
+  "upload_receipt_btn": "Hochladen"
 }

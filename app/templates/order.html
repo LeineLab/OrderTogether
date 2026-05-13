@@ -49,6 +49,17 @@
   </div>
   {% endif %}
 
+  <!-- Receipt / invoice — visible to all participants -->
+  {% if order.receipt_filename %}
+  <div class="receipt-box">
+    <span>{{ _("receipt_label") }}</span>
+    <a href="/orders/{{ order.id }}/receipt" target="_blank" rel="noopener" class="btn btn-sm">
+      {{ _("view_receipt_btn") }} ↗
+    </a>
+    <small class="hint">{{ _("receipt_expires_hint", date=receipt_expires_at | localtime) }}</small>
+  </div>
+  {% endif %}
+
   <div class="order-body">
     <!-- Left: Items table -->
     <section class="items-section">
@@ -133,6 +144,27 @@
         </li>
         {% endfor %}
       </ul>
+      {% endif %}
+
+      {% if receipt_upload_enabled %}
+      <h4>{{ _("receipt_title") }}</h4>
+      {% if order.receipt_filename %}
+      <p class="hint">{{ _("receipt_uploaded_hint", date=receipt_expires_at | localtime) }}</p>
+      <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem">
+        <a href="/orders/{{ order.id }}/receipt" target="_blank" class="btn btn-sm">{{ _("view_receipt_btn") }} ↗</a>
+        <form action="/orders/{{ order.id }}/receipt/delete" method="post" style="margin:0">
+          <button type="submit" class="btn btn-sm">{{ _("delete_receipt_btn") }}</button>
+        </form>
+      </div>
+      {% endif %}
+      <form action="/orders/{{ order.id }}/receipt" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>{{ _("receipt_upload_label") }}</label>
+          <input type="file" name="file" accept=".jpg,.jpeg,.png,.pdf" required>
+          <small>{{ _("receipt_upload_hint") }}</small>
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary">{{ _("upload_receipt_btn") }}</button>
+      </form>
       {% endif %}
 
       <h4>{{ _("order_settings_title") }}</h4>
