@@ -31,6 +31,7 @@ class Order(Base):
     # When invite_only: also allow any authenticated OIDC user without an invite link
     allow_oidc: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     privacy_mode: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    public_listing: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     items: Mapped[list["OrderItem"]] = relationship(

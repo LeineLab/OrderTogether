@@ -67,9 +67,21 @@ def _order_context(request: Request, order: Order, identity: dict) -> dict:
 
 
 @router.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, db: AsyncSession = Depends(get_db)):
     identity = get_identity(request)
-    return render("index.html", request, {"identity": identity, "oidc_enabled": OIDC_ENABLED})
+    now = datetime.utcnow()
+    result = await db.execute(
+        select(Order)
+        .where(Order.public_listing == True, Order.deadline > now)  # noqa: E712
+        .order_by(Order.deadline.asc())
+    )
+    public_orders = result.scalars().all()
+    return render("index.html", request, {
+        "identity": identity,
+        "oidc_enabled": OIDC_ENABLED,
+        "public_orders": public_orders,
+        "now": now,
+    })
 
 
 # ─── My Orders (OIDC users) ───────────────────────────────────────────────────
@@ -117,6 +129,7 @@ async def create_order(
     invite_only: bool = Form(False),
     allow_oidc: bool = Form(False),
     privacy_mode: bool = Form(False),
+    public_listing: bool = Form(False),
     db: AsyncSession = Depends(get_db),
 ):
     identity = get_identity(request)
@@ -142,6 +155,7 @@ async def create_order(
         allow_oidc=allow_oidc and invite_only,
         # privacy_mode only meaningful when invite_only (users are identified)
         privacy_mode=privacy_mode and invite_only,
+        public_listing=public_listing,
     )
     db.add(order)
     await db.commit()
@@ -297,6 +311,7 @@ async def update_settings(
     order_id: str,
     allow_oidc: bool = Form(False),
     payment_url: str = Form(""),
+    public_listing: bool = Form(False),
     db: AsyncSession = Depends(get_db),
 ):
     order = await _get_order(order_id, db)
@@ -304,6 +319,7 @@ async def update_settings(
         raise HTTPException(status_code=403, detail="Only the admin can change settings")
     order.allow_oidc = allow_oidc and order.invite_only
     order.payment_url = payment_url.strip() or None
+    order.public_listing = public_listing
     await db.commit()
     return RedirectResponse(f"/orders/{order_id}", status_code=303)
 

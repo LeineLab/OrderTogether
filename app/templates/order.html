@@ -152,6 +152,13 @@
           <small class="hint">{{ _("allow_oidc_hint") }}</small>
         </div>
         {% endif %}
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" name="public_listing" value="true"{% if order.public_listing %} checked{% endif %}>
+            {{ _("public_listing_label") }}
+          </label>
+          <small class="hint">{{ _("public_listing_hint") }}</small>
+        </div>
         <button type="submit" class="btn btn-sm btn-primary">{{ _("save_settings_btn") }}</button>
       </form>
     </aside>

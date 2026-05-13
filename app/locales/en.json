@@ -94,5 +94,10 @@
   "paid_label": "Paid",
 
   "invite_for": "Invite link for {name}:",
-  "invite_hint": "Share this link privately. The recipient will be identified as {name}."
+  "invite_hint": "Share this link privately. The recipient will be identified as {name}.",
+
+  "public_listing_label": "List on public open orders",
+  "public_listing_hint": "show this order on the start page so anyone can join",
+  "public_orders_title": "Open Orders",
+  "join_btn": "Join"
 }

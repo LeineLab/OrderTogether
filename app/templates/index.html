@@ -47,7 +47,38 @@
       {% endif %}
     </div>
 
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="public_listing" value="true">
+        {{ _("public_listing_label") }} <small>({{ _("public_listing_hint") }})</small>
+      </label>
+    </div>
+
     <button type="submit" class="btn btn-primary">{{ _("create_order_btn") }}</button>
   </form>
+
+  {% if public_orders %}
+  <section class="public-orders">
+    <h2>{{ _("public_orders_title") }}</h2>
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>{{ _("col_vendor") }}</th>
+          <th>{{ _("deadline_label") }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in public_orders %}
+        <tr>
+          <td><strong>{{ o.vendor_name }}</strong></td>
+          <td>{{ o.deadline | localtime }}</td>
+          <td><a href="/orders/{{ o.id }}" class="btn btn-sm">{{ _("join_btn") }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
 </div>
 {% endblock %}
