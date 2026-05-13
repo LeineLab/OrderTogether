@@ -56,10 +56,8 @@
 
     <button type="submit" class="btn btn-primary">{{ _("create_order_btn") }}</button>
   </form>
-</div>
 
-{% if public_orders %}
-<div class="container">
+  {% if public_orders %}
   <section class="card" style="margin-top:2rem">
     <h2 style="margin-top:0">{{ _("public_orders_title") }}</h2>
     <table class="items-table">
@@ -81,6 +79,6 @@
       </tbody>
     </table>
   </section>
+  {% endif %}
 </div>
-{% endif %}
 {% endblock %}
