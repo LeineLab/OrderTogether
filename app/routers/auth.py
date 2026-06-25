@@ -1,7 +1,11 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from sqlalchemy import update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import OIDC_ENABLED, OIDC_REDIRECT_URI, clear_identity, oauth, set_oidc_identity
+from app.database import get_db
+from app.models import OrderItem
 
 router = APIRouter(prefix="/auth")
 
@@ -14,7 +18,7 @@ async def login(request: Request):
 
 
 @router.get("/callback", name="auth_callback")
-async def callback(request: Request):
+async def callback(request: Request, db: AsyncSession = Depends(get_db)):
     if not OIDC_ENABLED or oauth is None:
         return RedirectResponse("/")
     try:
@@ -33,6 +37,18 @@ async def callback(request: Request):
     user_info = token.get("userinfo") or await oauth.oidc.userinfo(token=token)
     sub = user_info.get("sub", "")
     name = user_info.get("name") or user_info.get("email") or sub
+
+    # Claim any items added anonymously in this session before overwriting identity
+    if request.session.get("identity_type") == "anon":
+        anon_id = request.session.get("identity_id")
+        if anon_id:
+            await db.execute(
+                update(OrderItem)
+                .where(OrderItem.person_identifier == anon_id)
+                .values(person_identifier=sub, person_name=name)
+            )
+            await db.commit()
+
     set_oidc_identity(request, sub, name)
     return RedirectResponse("/")
 
