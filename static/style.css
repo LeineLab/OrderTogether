@@ -240,7 +240,9 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
 .items-table tr:last-child td { border-bottom: none; }
 .items-table tr:hover td { background: #f8f9fa; }
 
-.actions { display: flex; gap: .35rem; }
+.actions { gap: .35rem; }
+
+.actions div { display: flex; }
 
 .invite-only-notice {
   margin-top: 1.5rem;

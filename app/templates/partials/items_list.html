@@ -40,18 +40,20 @@
         {% endif %}
       </td>
       <td class="actions">
-        {% if can_edit_item(identity, item, order) and (is_creator or not deadline_passed) %}
-        <button class="btn btn-xs"
-                hx-get="/orders/{{ order.id }}/items/{{ item.id }}/edit"
-                hx-target="#item-row-{{ item.id }}"
-                hx-swap="outerHTML">{{ _("edit_btn") }}</button>
-        <button class="btn btn-xs btn-danger"
-                hx-delete="/orders/{{ order.id }}/items/{{ item.id }}"
-                hx-target="#items-table"
-                hx-swap="innerHTML"
-                hx-confirm="{{ _('confirm_delete') }}">{{ _("delete_btn") }}</button>
-        {% else %}&nbsp;
-        {% endif %}
+        <div>
+          {% if can_edit_item(identity, item, order) and (is_creator or not deadline_passed) %}
+          <button class="btn btn-xs"
+                  hx-get="/orders/{{ order.id }}/items/{{ item.id }}/edit"
+                  hx-target="#item-row-{{ item.id }}"
+                  hx-swap="outerHTML">{{ _("edit_btn") }}</button>
+          <button class="btn btn-xs btn-danger"
+                  hx-delete="/orders/{{ order.id }}/items/{{ item.id }}"
+                  hx-target="#items-table"
+                  hx-swap="innerHTML"
+                  hx-confirm="{{ _('confirm_delete') }}">{{ _("delete_btn") }}</button>
+          {% else %}&nbsp;
+          {% endif %}
+        </div>
       </td>
     </tr>
     {% endfor %}
