@@ -109,5 +109,14 @@
   "receipt_expires_hint": "Expires {date}",
   "view_receipt_btn": "View receipt",
   "delete_receipt_btn": "Delete",
-  "upload_receipt_btn": "Upload"
+  "upload_receipt_btn": "Upload",
+
+  "event_log_title": "Change log",
+  "log_col_time": "Time",
+  "log_col_who": "Who",
+  "log_col_action": "Action",
+  "log_col_item": "Item",
+  "log_action_edit": "Edited",
+  "log_action_delete": "Deleted",
+  "log_empty": "No changes recorded yet."
 }

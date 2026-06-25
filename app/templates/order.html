@@ -197,6 +197,16 @@
     {% endif %}
   </div>
 
+  {% if is_creator %}
+  <section class="event-log-section">
+    <h2>{{ _("event_log_title") }}</h2>
+    <div id="event-log"
+         hx-get="/orders/{{ order.id }}/log"
+         hx-trigger="load">
+    </div>
+  </section>
+  {% endif %}
+
 </div>
 
 <script>
@@ -205,10 +215,16 @@
   const ITEMS_URL = "/orders/" + ORDER_ID + "/items";
   const WS_URL = (location.protocol === "https:" ? "wss:" : "ws:") +
                  "//" + location.host + "/orders/" + ORDER_ID + "/ws";
+  {% if is_creator %}
+  const LOG_URL = "/orders/" + ORDER_ID + "/log";
+  {% endif %}
   let debounce = null;
 
   function refresh() {
     htmx.ajax("GET", ITEMS_URL, { target: "#items-table", swap: "innerHTML" });
+    {% if is_creator %}
+    htmx.ajax("GET", LOG_URL, { target: "#event-log", swap: "innerHTML" });
+    {% endif %}
   }
 
   // ── Deadline display (all users) ──────────────────────────────────────────

@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime
 
@@ -17,9 +18,20 @@ from app.auth import (
     is_order_admin,
 )
 from app.database import get_db
-from app.models import Order, OrderItem
+from app.models import Order, OrderItem, OrderItemEvent
 from app.templating import render
 from app.ws import manager
+
+
+def _snapshot(item: OrderItem) -> str:
+    return json.dumps({
+        "person_name": item.person_name,
+        "product_name": item.product_name,
+        "quantity": item.quantity,
+        "product_sku": item.product_sku,
+        "product_url": item.product_url,
+        "note": item.note,
+    })
 
 router = APIRouter()
 
@@ -166,6 +178,15 @@ async def edit_item(
     if datetime.utcnow() > order.deadline and not is_admin:
         raise HTTPException(status_code=403, detail="Order is closed")
 
+    db.add(OrderItemEvent(
+        order_id=order_id,
+        item_id=item_id,
+        action="edit",
+        actor_name=identity["name"],
+        actor_identifier=identity["id"],
+        item_snapshot=_snapshot(item),
+    ))
+
     # Token users cannot change their display name
     item.person_name = identity["name"] if identity["type"] == "token" else person_name
     item.product_name = product_name
@@ -204,6 +225,15 @@ async def delete_item(
         raise HTTPException(status_code=403, detail="Not allowed to delete this item")
     if datetime.utcnow() > order.deadline and not is_admin:
         raise HTTPException(status_code=403, detail="Order is closed")
+
+    db.add(OrderItemEvent(
+        order_id=order_id,
+        item_id=item_id,
+        action="delete",
+        actor_name=identity["name"],
+        actor_identifier=identity["id"],
+        item_snapshot=_snapshot(item),
+    ))
 
     await db.delete(item)
     await db.commit()

@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -21,7 +22,7 @@ from app.auth import (
 from app.config import LOCAL_TZ, RECEIPT_UPLOAD_ENABLED
 from app.database import RECEIPT_DIR, RECEIPT_TTL_DAYS, get_db
 from app.export import export_csv
-from app.models import EmailToken, Order, OrderItem
+from app.models import EmailToken, Order, OrderItem, OrderItemEvent
 from app.templating import render
 from app.ws import manager
 
@@ -198,6 +199,36 @@ async def view_order(request: Request, order_id: str, db: AsyncSession = Depends
     order = await _get_order(order_id, db)
     identity = get_identity(request)
     return render("order.html", request, _order_context(request, order, identity))
+
+
+# ─── Change log ──────────────────────────────────────────────────────────────
+
+
+@router.get("/orders/{order_id}/log", response_class=HTMLResponse)
+async def order_log(request: Request, order_id: str, db: AsyncSession = Depends(get_db)):
+    order = await _get_order(order_id, db)
+    if not is_order_admin(request, order):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    result = await db.execute(
+        select(OrderItemEvent)
+        .where(OrderItemEvent.order_id == order_id)
+        .order_by(OrderItemEvent.timestamp.desc())
+        .limit(100)
+    )
+    events = result.scalars().all()
+
+    entries = [
+        {
+            "timestamp": e.timestamp,
+            "action": e.action,
+            "actor_name": e.actor_name,
+            "product_name": json.loads(e.item_snapshot).get("product_name", "?"),
+            "snapshot": json.loads(e.item_snapshot),
+        }
+        for e in events
+    ]
+    return render("partials/event_log.html", request, {"entries": entries})
 
 
 # ─── Export ───────────────────────────────────────────────────────────────────

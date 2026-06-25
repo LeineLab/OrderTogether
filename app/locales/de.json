@@ -109,5 +109,14 @@
   "receipt_expires_hint": "L\u00e4uft ab am {date}",
   "view_receipt_btn": "Beleg ansehen",
   "delete_receipt_btn": "L\u00f6schen",
-  "upload_receipt_btn": "Hochladen"
+  "upload_receipt_btn": "Hochladen",
+
+  "event_log_title": "\u00c4nderungsprotokoll",
+  "log_col_time": "Zeit",
+  "log_col_who": "Wer",
+  "log_col_action": "Aktion",
+  "log_col_item": "Artikel",
+  "log_action_edit": "Bearbeitet",
+  "log_action_delete": "Gel\u00f6scht",
+  "log_empty": "Noch keine \u00c4nderungen aufgezeichnet."
 }

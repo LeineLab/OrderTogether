@@ -161,6 +161,8 @@ input:focus, select:focus, textarea:focus {
 .badge-open { background: #dcfce7; color: var(--color-open); }
 .badge-closed { background: #fee2e2; color: var(--color-closed); }
 .badge-invite { background: #ede9fe; color: #6d28d9; }
+.badge-log-edit   { background: #fef9c3; color: #92400e; }
+.badge-log-delete { background: #fee2e2; color: var(--color-closed); }
 
 .identity-badge {
   font-size: .82rem;
@@ -277,6 +279,27 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
   background: var(--color-surface);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius);
+}
+
+/* ── Change log ──────────────────────────────────────────────────────── */
+
+.event-log-section {
+  margin-top: 2rem;
+}
+
+.event-log-section h2 {
+  margin-bottom: .75rem;
+}
+
+.log-time {
+  white-space: nowrap;
+  color: var(--color-muted);
+  font-size: .85rem;
+}
+
+.log-meta {
+  color: var(--color-muted);
+  font-size: .85rem;
 }
 
 /* ── Inline edit ─────────────────────────────────────────────────────── */

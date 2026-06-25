@@ -1,0 +1,33 @@
+{% if entries %}
+<table class="items-table">
+  <thead>
+    <tr>
+      <th>{{ _("log_col_time") }}</th>
+      <th>{{ _("log_col_who") }}</th>
+      <th>{{ _("log_col_action") }}</th>
+      <th>{{ _("log_col_item") }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in entries %}
+    <tr>
+      <td class="log-time">{{ e.timestamp | localtime }}</td>
+      <td>{{ e.actor_name }}</td>
+      <td>
+        <span class="badge badge-log-{{ e.action }}">
+          {{ _("log_action_" + e.action) }}
+        </span>
+      </td>
+      <td>
+        {{ e.product_name }}
+        {% if e.snapshot.person_name %}
+          <span class="log-meta">({{ e.snapshot.person_name }})</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty-state">{{ _("log_empty") }}</p>
+{% endif %}

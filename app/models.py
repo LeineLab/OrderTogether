@@ -6,6 +6,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
 
+def _utcnow() -> datetime:
+    return datetime.utcnow()
+
+
 def _now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -60,6 +64,19 @@ class OrderItem(Base):
     added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     order: Mapped["Order"] = relationship("Order", back_populates="items")
+
+
+class OrderItemEvent(Base):
+    __tablename__ = "order_item_events"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=_uuid)
+    order_id: Mapped[str] = mapped_column(String, ForeignKey("orders.id"), nullable=False)
+    item_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    action: Mapped[str] = mapped_column(String, nullable=False)  # "edit" / "delete"
+    actor_name: Mapped[str] = mapped_column(String, nullable=False)
+    actor_identifier: Mapped[str] = mapped_column(String, nullable=False)
+    item_snapshot: Mapped[str] = mapped_column(Text, nullable=False)  # JSON
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
 
 
 class EmailToken(Base):
