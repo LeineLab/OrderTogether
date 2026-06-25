@@ -46,7 +46,8 @@ header nav {
   gap: 1rem;
 }
 
-.brand { font-weight: 700; font-size: 1.2rem; color: var(--color-text); }
+.brand { font-weight: 700; font-size: 1.2rem; color: var(--color-text); display: inline-flex; align-items: center; gap: .4rem; }
+.brand-icon { height: 1.4rem; width: 1.4rem; }
 
 .nav-right { display: flex; align-items: center; gap: .75rem; }
 

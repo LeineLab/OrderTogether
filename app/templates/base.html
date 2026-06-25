@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}OrderTogether{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="/static/icon.svg">
   <link rel="stylesheet" href="/static/style.css">
   <script src="/static/htmx.min.js"></script>
 </head>
 <body>
   <header>
     <nav>
-      <a href="/" class="brand">OrderTogether</a>
+      <a href="/" class="brand"><img src="/static/icon.svg" alt="" class="brand-icon">OrderTogether</a>
       <div class="nav-right">
         {% if identity %}
           {% if identity.type == "oidc" %}
