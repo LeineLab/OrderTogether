@@ -155,8 +155,9 @@ async def create_order(
         vendor_url=vendor_url,
         deadline=dt,
         creator_name=identity["name"] or "Admin",
-        # Store OIDC sub so the creator is recognised as admin across sessions
-        creator_identifier=identity["id"] if identity["type"] == "oidc" else None,
+        # Store identity id so the creator is recognised as admin across sessions.
+        # For anon users this is a UUID that gets replaced with the OIDC sub on login.
+        creator_identifier=identity["id"],
         invite_only=invite_only,
         allow_oidc=allow_oidc and invite_only,
         # privacy_mode only meaningful when invite_only (users are identified)

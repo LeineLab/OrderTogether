@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import OIDC_ENABLED, OIDC_REDIRECT_URI, clear_identity, oauth, set_oidc_identity
 from app.database import get_db
-from app.models import OrderItem
+from app.models import Order, OrderItem
 
 router = APIRouter(prefix="/auth")
 
@@ -38,10 +38,15 @@ async def callback(request: Request, db: AsyncSession = Depends(get_db)):
     sub = user_info.get("sub", "")
     name = user_info.get("name") or user_info.get("email") or sub
 
-    # Claim any items added anonymously in this session before overwriting identity
+    # Claim orders and items created anonymously in this session before overwriting identity
     if request.session.get("identity_type") == "anon":
         anon_id = request.session.get("identity_id")
         if anon_id:
+            await db.execute(
+                update(Order)
+                .where(Order.creator_identifier == anon_id)
+                .values(creator_identifier=sub)
+            )
             await db.execute(
                 update(OrderItem)
                 .where(OrderItem.person_identifier == anon_id)
