@@ -37,6 +37,8 @@ async def migrate_db():
         "ALTER TABLE orders ADD COLUMN public_listing BOOLEAN NOT NULL DEFAULT 0",
         "ALTER TABLE orders ADD COLUMN receipt_filename VARCHAR",
         "ALTER TABLE orders ADD COLUMN receipt_uploaded_at DATETIME",
+        "ALTER TABLE orders ADD COLUMN is_ordered BOOLEAN NOT NULL DEFAULT 0",
+        "ALTER TABLE orders ADD COLUMN tracking_url VARCHAR",
     ]
     async with engine.begin() as conn:
         for stmt in new_columns:

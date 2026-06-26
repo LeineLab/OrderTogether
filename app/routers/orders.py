@@ -350,6 +350,8 @@ async def update_settings(
     allow_oidc: bool = Form(False),
     payment_url: str = Form(""),
     public_listing: bool = Form(False),
+    is_ordered: bool = Form(False),
+    tracking_url: str = Form(""),
     db: AsyncSession = Depends(get_db),
 ):
     order = await _get_order(order_id, db)
@@ -358,6 +360,8 @@ async def update_settings(
     order.allow_oidc = allow_oidc and order.invite_only
     order.payment_url = payment_url.strip() or None
     order.public_listing = public_listing
+    order.is_ordered = is_ordered
+    order.tracking_url = tracking_url.strip() or None
     await db.commit()
     return RedirectResponse(f"/orders/{order_id}", status_code=303)
 

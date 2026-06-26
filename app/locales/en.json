@@ -111,6 +111,14 @@
   "delete_receipt_btn": "Delete",
   "upload_receipt_btn": "Upload",
 
+  "status_ordered": "Ordered \u2713",
+  "track_shipment_btn": "Track shipment",
+  "is_ordered_label": "Mark as ordered",
+  "is_ordered_hint": "Lets participants know the order has been placed",
+  "tracking_url_label": "Tracking URL",
+  "tracking_url_placeholder": "https://track.example.com/...",
+  "tracking_url_hint": "Optional: share a shipment tracking link with all participants",
+
   "event_log_title": "Change log",
   "log_col_time": "Time",
   "log_col_who": "Who",

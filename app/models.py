@@ -38,6 +38,8 @@ class Order(Base):
     public_listing: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     receipt_filename: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     receipt_uploaded_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    is_ordered: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    tracking_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     items: Mapped[list["OrderItem"]] = relationship(

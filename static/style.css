@@ -332,6 +332,24 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
 .token-result p { font-size: .9rem; margin-bottom: .4rem; }
 .hint { color: var(--color-muted); font-size: .82rem !important; margin-top: .4rem !important; }
 
+/* ── Ordered / tracking box ──────────────────────────────────────────── */
+.ordered-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: .95rem;
+}
+
+.badge-ordered {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 /* ── Payment box ─────────────────────────────────────────────────────── */
 .payment-box {
   display: flex;
@@ -407,7 +425,8 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
   /* Share and payment boxes: stack input + button */
   .share-url-row { flex-direction: column; }
   .share-url-row .btn { align-self: flex-start; }
-  .payment-box { flex-wrap: wrap; }
+  .payment-box,
+  .ordered-box { flex-wrap: wrap; }
 
   /* Items table: hide optional columns and tighten cell padding */
   .items-table th:nth-child(4),
@@ -435,7 +454,8 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
   header { padding: 0 .75rem; }
 
   .share-box,
-  .payment-box { padding: .6rem .75rem; }
+  .payment-box,
+  .ordered-box { padding: .6rem .75rem; }
 
   .items-table th,
   .items-table td { padding: .35rem .4rem; font-size: .8rem; }

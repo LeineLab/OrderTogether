@@ -111,6 +111,14 @@
   "delete_receipt_btn": "L\u00f6schen",
   "upload_receipt_btn": "Hochladen",
 
+  "status_ordered": "Bestellt \u2713",
+  "track_shipment_btn": "Sendung verfolgen",
+  "is_ordered_label": "Als bestellt markieren",
+  "is_ordered_hint": "Zeigt den Teilnehmern, dass die Bestellung aufgegeben wurde",
+  "tracking_url_label": "Tracking-URL",
+  "tracking_url_placeholder": "https://track.example.com/...",
+  "tracking_url_hint": "Optional: Sendungsverfolgungslink f\u00fcr alle Teilnehmer hinterlegen",
+
   "event_log_title": "\u00c4nderungsprotokoll",
   "log_col_time": "Zeit",
   "log_col_who": "Wer",

@@ -49,6 +49,18 @@
   </div>
   {% endif %}
 
+  <!-- Ordered status / tracking — shown to all participants when set by admin -->
+  {% if order.is_ordered %}
+  <div class="ordered-box">
+    <span class="badge badge-ordered">{{ _("status_ordered") }}</span>
+    {% if order.tracking_url %}
+    <a href="{{ order.tracking_url }}" target="_blank" rel="noopener" class="btn btn-sm">
+      {{ _("track_shipment_btn") }} ↗
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <!-- Receipt / invoice — visible to all participants -->
   {% if order.receipt_filename %}
   <div class="receipt-box">
@@ -169,6 +181,19 @@
 
       <h4>{{ _("order_settings_title") }}</h4>
       <form action="/orders/{{ order.id }}/settings" method="post">
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" name="is_ordered" value="true"{% if order.is_ordered %} checked{% endif %}>
+            {{ _("is_ordered_label") }}
+          </label>
+          <small class="hint">{{ _("is_ordered_hint") }}</small>
+        </div>
+        <div class="form-group">
+          <label>{{ _("tracking_url_label") }}</label>
+          <input type="url" name="tracking_url" value="{{ order.tracking_url or '' }}"
+                 placeholder="{{ _('tracking_url_placeholder') }}">
+          <small>{{ _("tracking_url_hint") }}</small>
+        </div>
         <div class="form-group">
           <label>{{ _("payment_url_label") }}</label>
           <input type="url" name="payment_url" value="{{ order.payment_url or '' }}"
