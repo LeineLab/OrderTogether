@@ -92,6 +92,9 @@
   "col_paid": "Paid",
   "toggle_paid_title": "Toggle paid status",
   "paid_label": "Paid",
+  "col_ordered": "Ordered",
+  "toggle_ordered_title": "Toggle ordered status",
+  "ordered_label": "Ordered",
 
   "invite_for": "Invite link for {name}:",
   "invite_hint": "Share this link privately. The recipient will be identified as {name}.",

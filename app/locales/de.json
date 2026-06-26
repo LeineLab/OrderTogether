@@ -92,6 +92,9 @@
   "col_paid": "Bezahlt",
   "toggle_paid_title": "Bezahlstatus umschalten",
   "paid_label": "Bezahlt",
+  "col_ordered": "Bestellt",
+  "toggle_ordered_title": "Bestellstatus umschalten",
+  "ordered_label": "Bestellt",
 
   "invite_for": "Einladungslink f\u00fcr {name}:",
   "invite_hint": "Teile diesen Link privat. Die eingeladene Person wird als {name} identifiziert.",

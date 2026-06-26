@@ -63,6 +63,7 @@ class OrderItem(Base):
     quantity: Mapped[str] = mapped_column(String, nullable=False, default="1")
     note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     paid: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    ordered: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     order: Mapped["Order"] = relationship("Order", back_populates="items")

@@ -273,6 +273,37 @@ async def edit_form(
     )
 
 
+# ─── Toggle ordered (admin only) ─────────────────────────────────────────────
+
+
+@router.post("/orders/{order_id}/items/{item_id}/ordered", response_class=HTMLResponse)
+async def toggle_ordered(
+    request: Request,
+    order_id: str,
+    item_id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    order = await _get_order(order_id, db)
+    identity = get_identity(request)
+    is_admin = is_order_admin(request, order)
+
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Only the admin can mark items as ordered")
+
+    result = await db.execute(
+        select(OrderItem).where(OrderItem.id == item_id, OrderItem.order_id == order_id)
+    )
+    item = result.scalar_one_or_none()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    item.ordered = not item.ordered
+    await db.commit()
+    await db.refresh(order, attribute_names=["items"])
+    await manager.broadcast(order_id)
+    return _items_response(request, order, identity)
+
+
 # ─── Toggle paid ──────────────────────────────────────────────────────────────
 
 

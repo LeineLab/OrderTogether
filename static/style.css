@@ -386,6 +386,21 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
   font-weight: 600;
 }
 
+/* ── Item ordered status ─────────────────────────────────────────────── */
+.ordered-cell { text-align: center; width: 60px; }
+
+.btn-item-ordered {
+  background: #dbeafe;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+.btn-item-ordered:hover { background: #bfdbfe; }
+
+.ordered-indicator {
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
 /* ── Inline qty input (narrow on desktop, full-width on mobile) ──────── */
 .input-qty { width: 4rem; }
 

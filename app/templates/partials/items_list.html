@@ -8,6 +8,7 @@
       <th>{{ _("col_sku") }}</th>
       <th>{{ _("col_note") }}</th>
       <th>{{ _("col_paid") }}</th>
+      <th>{{ _("col_ordered") }}</th>
       <th>{{ _("col_actions") }}</th>
     </tr>
   </thead>
@@ -36,6 +37,20 @@
         </button>
         {% elif item.paid %}
         <span class="paid-indicator" title="{{ _('paid_label') }}">✓</span>
+        {% else %}&nbsp;
+        {% endif %}
+      </td>
+      <td class="ordered-cell">
+        {% if is_creator %}
+        <button class="btn btn-xs{% if item.ordered %} btn-item-ordered{% endif %}"
+                hx-post="/orders/{{ order.id }}/items/{{ item.id }}/ordered"
+                hx-target="#items-table"
+                hx-swap="innerHTML"
+                title="{{ _('toggle_ordered_title') }}">
+          {% if item.ordered %}✓{% else %}○{% endif %}
+        </button>
+        {% elif item.ordered %}
+        <span class="ordered-indicator" title="{{ _('ordered_label') }}">✓</span>
         {% else %}&nbsp;
         {% endif %}
       </td>
