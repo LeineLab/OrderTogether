@@ -245,7 +245,16 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
 
 .actions { gap: .35rem; }
 
-.actions div { display: flex; }
+.actions div { display: flex; gap: .35rem; }
+
+/* Column header labels — icon hidden by default, shown on small screens */
+.col-label-icon {
+  display: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  vertical-align: middle;
+  fill: currentColor;
+}
 
 .invite-only-notice {
   margin-top: 1.5rem;
@@ -456,6 +465,13 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
 
   .items-table th,
   .items-table td { padding: .45rem .55rem; font-size: .85rem; }
+
+  /* Replace verbose column headers with icons */
+  .col-label-full { display: none; }
+  .col-label-icon { display: inline; }
+
+  /* Stack action buttons vertically */
+  .actions div { flex-direction: column; }
 
   /* Inline edit form: stack inputs vertically */
   .inline-fields { flex-direction: column; }
