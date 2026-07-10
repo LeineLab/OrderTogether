@@ -349,6 +349,7 @@ async def update_settings(
     order_id: str,
     allow_oidc: bool = Form(False),
     payment_url: str = Form(""),
+    payment_note: str = Form(""),
     public_listing: bool = Form(False),
     is_ordered: bool = Form(False),
     tracking_url: str = Form(""),
@@ -359,6 +360,7 @@ async def update_settings(
         raise HTTPException(status_code=403, detail="Only the admin can change settings")
     order.allow_oidc = allow_oidc and order.invite_only
     order.payment_url = payment_url.strip() or None
+    order.payment_note = payment_note.strip() or None
     order.public_listing = public_listing
     order.is_ordered = is_ordered
     order.tracking_url = tracking_url.strip() or None

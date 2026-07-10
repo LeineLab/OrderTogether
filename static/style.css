@@ -371,6 +371,11 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
 }
 .btn-pay:hover { background: #15803d; border-color: #15803d; }
 
+.payment-note {
+  font-size: .9rem;
+  color: var(--color-muted);
+}
+
 /* ── Paid status ─────────────────────────────────────────────────────── */
 .paid-cell { text-align: center; width: 60px; }
 

@@ -33,6 +33,7 @@ async def migrate_db():
         "ALTER TABLE orders ADD COLUMN creator_identifier VARCHAR",
         "ALTER TABLE orders ADD COLUMN allow_oidc BOOLEAN NOT NULL DEFAULT 0",
         "ALTER TABLE orders ADD COLUMN payment_url VARCHAR",
+        "ALTER TABLE orders ADD COLUMN payment_note VARCHAR",
         "ALTER TABLE order_items ADD COLUMN paid BOOLEAN NOT NULL DEFAULT 0",
         "ALTER TABLE order_items ADD COLUMN ordered BOOLEAN NOT NULL DEFAULT 0",
         "ALTER TABLE orders ADD COLUMN public_listing BOOLEAN NOT NULL DEFAULT 0",

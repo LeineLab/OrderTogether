@@ -31,6 +31,7 @@ class Order(Base):
     creator_identifier: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     # Optional payment link shown to all participants (PayPal, Revolut, etc.)
     payment_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    payment_note: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     invite_only: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     # When invite_only: also allow any authenticated OIDC user without an invite link
     allow_oidc: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
