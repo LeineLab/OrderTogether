@@ -125,6 +125,8 @@
   "tracking_url_placeholder": "https://track.example.com/...",
   "tracking_url_hint": "Optional: share a shipment tracking link with all participants",
 
+  "vendor_url_edit_hint": "Update the store / menu link",
+
   "event_log_title": "Change log",
   "log_col_time": "Time",
   "log_col_who": "Who",

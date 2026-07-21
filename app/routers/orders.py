@@ -353,6 +353,7 @@ async def update_settings(
     public_listing: bool = Form(False),
     is_ordered: bool = Form(False),
     tracking_url: str = Form(""),
+    vendor_url: str = Form(""),
     db: AsyncSession = Depends(get_db),
 ):
     order = await _get_order(order_id, db)
@@ -364,6 +365,7 @@ async def update_settings(
     order.public_listing = public_listing
     order.is_ordered = is_ordered
     order.tracking_url = tracking_url.strip() or None
+    order.vendor_url = vendor_url.strip() or order.vendor_url
     await db.commit()
     return RedirectResponse(f"/orders/{order_id}", status_code=303)
 

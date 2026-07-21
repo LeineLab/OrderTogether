@@ -186,6 +186,12 @@
 
       <h4>{{ _("order_settings_title") }}</h4>
       <form action="/orders/{{ order.id }}/settings" method="post">
+        <div class="form-group">
+          <label>{{ _("vendor_url_label") }}</label>
+          <input type="url" name="vendor_url" value="{{ order.vendor_url or '' }}"
+                 placeholder="https://...">
+          <small>{{ _("vendor_url_edit_hint") }}</small>
+        </div>
         <div class="form-group checkbox-group">
           <label>
             <input type="checkbox" name="is_ordered" value="true"{% if order.is_ordered %} checked{% endif %}>
