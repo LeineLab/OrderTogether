@@ -65,4 +65,4 @@ async def startup():
     await cleanup_receipts()
     asyncio.create_task(_receipt_cleanup_loop())
     from app.push import init_push
-    init_push()
+    await init_push()

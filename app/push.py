@@ -21,18 +21,18 @@ VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "")
 
 
 def _load_or_generate_keys() -> tuple:
-    """Return (private_key, public_key), generating and persisting them if needed."""
+    """Return (private_key, public_key, freshly_generated), generating and persisting if needed."""
     global VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY
 
     # Env vars take precedence
     if VAPID_PRIVATE_KEY and VAPID_PUBLIC_KEY:
-        return VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY
+        return VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY, False
 
     # Try loading from persisted file
     if _KEYS_FILE.exists():
         try:
             data = json.loads(_KEYS_FILE.read_text())
-            return data["private_key"], data["public_key"]
+            return data["private_key"], data["public_key"], False
         except Exception:
             pass
 
@@ -40,14 +40,18 @@ def _load_or_generate_keys() -> tuple:
     try:
         import base64
         from py_vapid import Vapid
-        from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+        from cryptography.hazmat.primitives.serialization import (
+            Encoding, NoEncryption, PrivateFormat, PublicFormat,
+        )
         v = Vapid()
         v.generate_keys()
-        # Private key as base64url raw scalar — py_vapid.Vapid.from_string() expects this format
-        private_value = v.private_key.private_numbers().private_value
-        private_key = base64.urlsafe_b64encode(
-            private_value.to_bytes(32, "big")
-        ).rstrip(b"=").decode("utf-8")
+        # Private key as base64url-encoded DER (SEC1 / TraditionalOpenSSL).
+        # py_vapid.Vapid.from_string() calls load_der_private_key() which parses this correctly,
+        # guaranteeing the derived public key matches what we send to the browser.
+        der_bytes = v.private_key.private_bytes(
+            Encoding.DER, PrivateFormat.TraditionalOpenSSL, NoEncryption()
+        )
+        private_key = base64.urlsafe_b64encode(der_bytes).rstrip(b"=").decode("utf-8")
         # Public key as URL-safe base64 uncompressed point (required by browsers)
         pub_bytes = v.public_key.public_bytes(Encoding.X962, PublicFormat.UncompressedPoint)
         public_key = base64.urlsafe_b64encode(pub_bytes).rstrip(b"=").decode("utf-8")
@@ -56,16 +60,28 @@ def _load_or_generate_keys() -> tuple:
             "private_key": private_key,
             "public_key": public_key,
         }))
-        return private_key, public_key
+        return private_key, public_key, True
     except Exception:
-        return "", ""
+        return "", "", False
 
 
-def init_push() -> None:
-    """Called at startup to load/generate VAPID keys."""
+async def init_push() -> None:
+    """Called at startup to load/generate VAPID keys.
+
+    If keys are freshly generated all stored push subscriptions are purged,
+    since they were created with the old (now invalid) public key.
+    """
     global VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY, PUSH_ENABLED
-    VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY = _load_or_generate_keys()
+    VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY, fresh = _load_or_generate_keys()
     PUSH_ENABLED = bool(VAPID_PRIVATE_KEY and VAPID_PUBLIC_KEY and VAPID_EMAIL)
+    if fresh:
+        from sqlalchemy import delete as _delete
+        from app.database import AsyncSessionLocal
+        from app.models import PushSubscription
+        async with AsyncSessionLocal() as db:
+            await db.execute(_delete(PushSubscription))
+            await db.commit()
+        logger.info("New VAPID keys generated — all push subscriptions purged.")
 
 
 PUSH_ENABLED = False  # updated by init_push() at startup
