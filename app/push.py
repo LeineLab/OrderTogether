@@ -4,8 +4,11 @@ import json
 import os
 from pathlib import Path
 
+import logging
+
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 VAPID_EMAIL = os.getenv("VAPID_EMAIL", "")
 
@@ -78,12 +81,11 @@ async def send_push(endpoint: str, p256dh: str, auth: str, title: str, body: str
             vapid_private_key=VAPID_PRIVATE_KEY,
             vapid_claims={"sub": f"mailto:{VAPID_EMAIL}"},
         )
-    except Exception:
-        pass  # never let push errors break the request
+    except Exception as e:
+        logger.warning("Push send failed: %s", e)
 
 
 async def notify_users(
-    db: AsyncSession,
     user_identifiers: list,
     order_id: str,
     title: str,
@@ -92,13 +94,15 @@ async def notify_users(
     """Send push to all subscriptions for the given user_identifiers on this order."""
     if not PUSH_ENABLED or not user_identifiers:
         return
+    from app.database import AsyncSessionLocal
     from app.models import PushSubscription
-    result = await db.execute(
-        select(PushSubscription).where(
-            PushSubscription.order_id == order_id,
-            PushSubscription.user_identifier.in_(user_identifiers),
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(PushSubscription).where(
+                PushSubscription.order_id == order_id,
+                PushSubscription.user_identifier.in_(user_identifiers),
+            )
         )
-    )
-    subs = result.scalars().all()
+        subs = result.scalars().all()
     for sub in subs:
         asyncio.create_task(send_push(sub.endpoint, sub.p256dh, sub.auth, title, body))

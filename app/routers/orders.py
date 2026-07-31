@@ -507,14 +507,12 @@ async def update_settings(
         rows = await db.execute(_select(_OI.person_identifier).where(_OI.order_id == order_id).distinct())
         participants = [r[0] for r in rows if r[0] != order.creator_identifier]
         if newly_ordered:
-            asyncio.create_task(notify_users(
-                db, participants, order_id,
+            asyncio.create_task(notify_users(participants, order_id,
                 "Order placed!",
                 f"The order at {order.vendor_name} has been placed.",
             ))
         elif tracking_added:
-            asyncio.create_task(notify_users(
-                db, participants, order_id,
+            asyncio.create_task(notify_users(participants, order_id,
                 "Tracking available",
                 f"A tracking link has been added for your {order.vendor_name} order.",
             ))
