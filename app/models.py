@@ -103,4 +103,5 @@ class PushSubscription(Base):
     endpoint: Mapped[str] = mapped_column(String, nullable=False)
     p256dh: Mapped[str] = mapped_column(String, nullable=False)
     auth: Mapped[str] = mapped_column(String, nullable=False)
+    language: Mapped[str] = mapped_column(String, nullable=False, default="en")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

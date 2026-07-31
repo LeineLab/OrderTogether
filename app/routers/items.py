@@ -149,8 +149,8 @@ async def add_item(
     if order.creator_identifier and order.creator_identifier != identity["id"]:
         asyncio.create_task(notify_users(
             [order.creator_identifier], order_id,
-            "New item added",
-            f"{person_name} added {product_name} to {order.vendor_name}",
+            "push_new_item_title", "push_new_item_body",
+            person=person_name, product=product_name, vendor=order.vendor_name,
         ))
     return _items_response(request, order, identity)
 
@@ -313,8 +313,8 @@ async def toggle_ordered(
     if item.ordered and item.person_identifier != identity["id"]:
         asyncio.create_task(notify_users(
             [item.person_identifier], order_id,
-            "Item added to cart",
-            f"Your item \"{item.product_name}\" was added to the cart for {order.vendor_name}",
+            "push_item_ordered_title", "push_item_ordered_body",
+            product=item.product_name, vendor=order.vendor_name,
         ))
     return _items_response(request, order, identity)
 

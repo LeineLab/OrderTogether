@@ -41,7 +41,8 @@ async def migrate_db():
         "ALTER TABLE orders ADD COLUMN receipt_uploaded_at DATETIME",
         "ALTER TABLE orders ADD COLUMN is_ordered BOOLEAN NOT NULL DEFAULT 0",
         "ALTER TABLE orders ADD COLUMN tracking_url VARCHAR",
-        "CREATE TABLE IF NOT EXISTS push_subscriptions (id VARCHAR PRIMARY KEY, user_identifier VARCHAR NOT NULL, order_id VARCHAR NOT NULL REFERENCES orders(id), endpoint VARCHAR NOT NULL, p256dh VARCHAR NOT NULL, auth VARCHAR NOT NULL, created_at DATETIME)",
+        "CREATE TABLE IF NOT EXISTS push_subscriptions (id VARCHAR PRIMARY KEY, user_identifier VARCHAR NOT NULL, order_id VARCHAR NOT NULL REFERENCES orders(id), endpoint VARCHAR NOT NULL, p256dh VARCHAR NOT NULL, auth VARCHAR NOT NULL, language VARCHAR NOT NULL DEFAULT 'en', created_at DATETIME)",
+        "ALTER TABLE push_subscriptions ADD COLUMN language VARCHAR NOT NULL DEFAULT 'en'",
     ]
     async with engine.begin() as conn:
         for stmt in new_columns:

@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import app.push as _push
 from app.auth import get_identity
 from app.database import get_db
+from app.i18n import detect_language
 from app.models import PushSubscription
 
 router = APIRouter()
@@ -49,12 +50,14 @@ async def subscribe(request: Request, db: AsyncSession = Depends(get_db)):
             PushSubscription.order_id == order_id,
         )
     )
+    language = detect_language(request.headers.get("accept-language", ""))
     db.add(PushSubscription(
         user_identifier=identity["id"],
         order_id=order_id,
         endpoint=endpoint,
         p256dh=p256dh,
         auth=auth,
+        language=language,
     ))
     await db.commit()
     return Response(status_code=201)

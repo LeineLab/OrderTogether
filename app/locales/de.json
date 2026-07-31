@@ -138,6 +138,14 @@
 
   "push_enable": "Benachrichtigungen aktivieren",
   "push_disable": "Benachrichtigungen deaktivieren",
+  "push_new_item_title": "Neuer Artikel hinzugef\u00fcgt",
+  "push_new_item_body": "{person} hat {product} zu {vendor} hinzugef\u00fcgt",
+  "push_item_ordered_title": "Artikel in den Warenkorb gelegt",
+  "push_item_ordered_body": "Dein Artikel \u201e{product}\u201c wurde f\u00fcr {vendor} in den Warenkorb gelegt",
+  "push_order_placed_title": "Bestellung aufgegeben!",
+  "push_order_placed_body": "Die Bestellung bei {vendor} wurde aufgegeben.",
+  "push_tracking_title": "Sendungsverfolgung verf\u00fcgbar",
+  "push_tracking_body": "F\u00fcr deine {vendor}-Bestellung wurde ein Tracking-Link hinterlegt.",
 
   "transfer_title": "Eigent\u00fcmer\u00fcbertragung",
   "transfer_hint": "W\u00e4hle einen Teilnehmer als neuen Admin. Dein Admin-Zugang wird sofort entzogen und ein neuer Admin-Link erstellt.",

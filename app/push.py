@@ -107,13 +107,19 @@ async def send_push(endpoint: str, p256dh: str, auth: str, title: str, body: str
 async def notify_users(
     user_identifiers: list,
     order_id: str,
-    title: str,
-    body: str,
+    title_key: str,
+    body_key: str,
+    **fmt,
 ) -> None:
-    """Send push to all subscriptions for the given user_identifiers on this order."""
+    """Send push to all subscriptions for the given user_identifiers on this order.
+
+    title_key and body_key are i18n keys; fmt kwargs are passed to the translator.
+    Each subscription is notified in its stored language.
+    """
     if not PUSH_ENABLED or not user_identifiers:
         return
     from app.database import AsyncSessionLocal
+    from app.i18n import get_translator
     from app.models import PushSubscription
     async with AsyncSessionLocal() as db:
         result = await db.execute(
@@ -124,4 +130,8 @@ async def notify_users(
         )
         subs = result.scalars().all()
     for sub in subs:
-        asyncio.create_task(send_push(sub.endpoint, sub.p256dh, sub.auth, title, body))
+        t = get_translator(sub.language)
+        asyncio.create_task(send_push(
+            sub.endpoint, sub.p256dh, sub.auth,
+            t(title_key, **fmt), t(body_key, **fmt),
+        ))

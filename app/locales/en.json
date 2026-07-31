@@ -138,6 +138,14 @@
 
   "push_enable": "Enable notifications",
   "push_disable": "Disable notifications",
+  "push_new_item_title": "New item added",
+  "push_new_item_body": "{person} added {product} to {vendor}",
+  "push_item_ordered_title": "Item added to cart",
+  "push_item_ordered_body": "Your item \u201c{product}\u201d was added to the cart for {vendor}",
+  "push_order_placed_title": "Order placed!",
+  "push_order_placed_body": "The order at {vendor} has been placed.",
+  "push_tracking_title": "Tracking available",
+  "push_tracking_body": "A tracking link has been added for your {vendor} order.",
 
   "transfer_title": "Transfer ownership",
   "transfer_hint": "Select a participant to become the new admin. Your admin access will be revoked immediately and a new admin link will be generated.",
