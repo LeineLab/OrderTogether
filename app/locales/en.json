@@ -136,6 +136,9 @@
 
   "vendor_url_edit_hint": "Update the store / menu link",
 
+  "push_enable": "Enable notifications",
+  "push_disable": "Disable notifications",
+
   "transfer_title": "Transfer ownership",
   "transfer_hint": "Select a participant to become the new admin. Your admin access will be revoked immediately and a new admin link will be generated.",
   "transfer_new_owner_label": "New owner",

@@ -92,3 +92,15 @@ class EmailToken(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     order: Mapped["Order"] = relationship("Order", back_populates="tokens")
+
+
+class PushSubscription(Base):
+    __tablename__ = "push_subscriptions"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=_uuid)
+    user_identifier: Mapped[str] = mapped_column(String, nullable=False)
+    order_id: Mapped[str] = mapped_column(String, ForeignKey("orders.id"), nullable=False)
+    endpoint: Mapped[str] = mapped_column(String, nullable=False)
+    p256dh: Mapped[str] = mapped_column(String, nullable=False)
+    auth: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

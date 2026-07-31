@@ -136,6 +136,9 @@
 
   "vendor_url_edit_hint": "Shop- / Men\u00fc-Link aktualisieren",
 
+  "push_enable": "Benachrichtigungen aktivieren",
+  "push_disable": "Benachrichtigungen deaktivieren",
+
   "transfer_title": "Eigent\u00fcmer\u00fcbertragung",
   "transfer_hint": "W\u00e4hle einen Teilnehmer als neuen Admin. Dein Admin-Zugang wird sofort entzogen und ein neuer Admin-Link erstellt.",
   "transfer_new_owner_label": "Neuer Eigent\u00fcmer",

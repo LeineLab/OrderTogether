@@ -1,3 +1,4 @@
+import asyncio
 import json
 import uuid
 from datetime import datetime
@@ -19,6 +20,7 @@ from app.auth import (
 )
 from app.database import get_db
 from app.models import Order, OrderItem, OrderItemEvent
+from app.push import notify_users
 from app.templating import render
 from app.events import manager
 
@@ -143,6 +145,13 @@ async def add_item(
     await db.commit()
     await db.refresh(order, attribute_names=["items"])
     await manager.broadcast(order_id)
+    # Notify admin about new item (fire-and-forget)
+    if order.creator_identifier and order.creator_identifier != identity["id"]:
+        asyncio.create_task(notify_users(
+            db, [order.creator_identifier], order_id,
+            "New item added",
+            f"{person_name} added {product_name} to {order.vendor_name}",
+        ))
     return _items_response(request, order, identity)
 
 
@@ -301,6 +310,12 @@ async def toggle_ordered(
     await db.commit()
     await db.refresh(order, attribute_names=["items"])
     await manager.broadcast(order_id)
+    if item.ordered and item.person_identifier != identity["id"]:
+        asyncio.create_task(notify_users(
+            db, [item.person_identifier], order_id,
+            "Item added to cart",
+            f"Your item \"{item.product_name}\" was added to the cart for {order.vendor_name}",
+        ))
     return _items_response(request, order, identity)
 
 

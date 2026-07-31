@@ -13,6 +13,7 @@ from app.database import RECEIPT_DIR, cleanup_receipts, init_db, migrate_db
 from app.routers import auth as auth_router
 from app.routers import items as items_router
 from app.routers import orders as orders_router
+from app.routers import push as push_router
 from app.routers import sse as sse_router
 
 SECRET_KEY = os.getenv("SECRET_KEY", "changeme-please-set-in-env")
@@ -47,6 +48,7 @@ app.include_router(orders_router.router)
 app.include_router(items_router.router)
 app.include_router(auth_router.router)
 app.include_router(sse_router.router)
+app.include_router(push_router.router)
 
 
 async def _receipt_cleanup_loop():
@@ -62,3 +64,5 @@ async def startup():
     await migrate_db()
     await cleanup_receipts()
     asyncio.create_task(_receipt_cleanup_loop())
+    from app.push import init_push
+    init_push()

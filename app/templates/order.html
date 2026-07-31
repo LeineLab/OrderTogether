@@ -24,6 +24,10 @@
       </p>
     </div>
     <div class="order-actions">
+      <button id="push-toggle" class="btn btn-sm" style="display:none"
+              data-label-on="{{ _('push_enable') }}"
+              data-label-off="{{ _('push_disable') }}"
+              data-subscribed="">{{ _('push_enable') }}</button>
       <a href="/orders/{{ order.id }}/export?group=person" class="btn btn-sm">{{ _("export_by_person") }}</a>
       <a href="/orders/{{ order.id }}/export?group=product" class="btn btn-sm">{{ _("export_by_product") }}</a>
     </div>
@@ -377,6 +381,78 @@
   }
 
   connect();
+
+  // ── Push notifications ────────────────────────────────────────────────────
+  (async function () {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+    const vapidRes = await fetch('/push/vapid-public-key');
+    const vapidData = await vapidRes.json();
+    if (!vapidData.enabled) return;
+
+    const btn = document.getElementById('push-toggle');
+    if (!btn) return;
+
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+
+    async function getSubscription() {
+      return await reg.pushManager.getSubscription();
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const raw = atob(base64);
+      return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+    }
+
+    async function updateBtn(sub) {
+      if (sub) {
+        btn.textContent = btn.dataset.labelOff;
+        btn.dataset.subscribed = '1';
+      } else {
+        btn.textContent = btn.dataset.labelOn;
+        btn.dataset.subscribed = '';
+      }
+    }
+
+    updateBtn(await getSubscription());
+    btn.style.display = '';
+
+    btn.addEventListener('click', async function () {
+      const current = await getSubscription();
+      if (current) {
+        await fetch('/push/subscribe', {
+          method: 'DELETE',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({endpoint: current.endpoint, order_id: ORDER_ID}),
+        });
+        await current.unsubscribe();
+        updateBtn(null);
+      } else {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidData.publicKey),
+        });
+        const key = sub.getKey('p256dh');
+        const authKey = sub.getKey('auth');
+        await fetch('/push/subscribe', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            order_id: ORDER_ID,
+            endpoint: sub.endpoint,
+            p256dh: btoa(String.fromCharCode(...new Uint8Array(key))),
+            auth: btoa(String.fromCharCode(...new Uint8Array(authKey))),
+          }),
+        });
+        updateBtn(sub);
+      }
+    });
+  })();
 })();
 </script>
 {% endblock %}

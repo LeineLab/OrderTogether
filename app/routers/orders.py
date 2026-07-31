@@ -1,3 +1,4 @@
+import asyncio
 import json
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -23,6 +24,7 @@ from app.config import LOCAL_TZ, PREDEFINED_SHOPS, RECEIPT_UPLOAD_ENABLED
 from app.database import RECEIPT_DIR, RECEIPT_TTL_DAYS, get_db
 from app.export import export_csv
 from app.models import EmailToken, Order, OrderItem, OrderItemEvent
+from app.push import notify_users
 from app.templating import render
 from app.events import manager
 
@@ -485,6 +487,8 @@ async def update_settings(
     order = await _get_order(order_id, db)
     if not is_order_admin(request, order):
         raise HTTPException(status_code=403, detail="Only the admin can change settings")
+    was_ordered = order.is_ordered
+    had_tracking = bool(order.tracking_url)
     order.allow_oidc = allow_oidc and order.invite_only
     order.payment_url = payment_url.strip() or None
     order.payment_note = payment_note.strip() or None
@@ -493,6 +497,28 @@ async def update_settings(
     order.tracking_url = tracking_url.strip() or None
     order.vendor_url = vendor_url.strip() or order.vendor_url
     await db.commit()
+
+    # Notify participants when order is newly marked as ordered or tracking url added
+    newly_ordered = is_ordered and not was_ordered
+    tracking_added = bool(tracking_url.strip()) and not had_tracking
+    if newly_ordered or tracking_added:
+        from sqlalchemy import select as _select
+        from app.models import OrderItem as _OI
+        rows = await db.execute(_select(_OI.person_identifier).where(_OI.order_id == order_id).distinct())
+        participants = [r[0] for r in rows if r[0] != order.creator_identifier]
+        if newly_ordered:
+            asyncio.create_task(notify_users(
+                db, participants, order_id,
+                "Order placed!",
+                f"The order at {order.vendor_name} has been placed.",
+            ))
+        elif tracking_added:
+            asyncio.create_task(notify_users(
+                db, participants, order_id,
+                "Tracking available",
+                f"A tracking link has been added for your {order.vendor_name} order.",
+            ))
+
     return RedirectResponse(f"/orders/{order_id}", status_code=303)
 
 

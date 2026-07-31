@@ -8,3 +8,4 @@ authlib
 httpx
 itsdangerous
 python-dotenv
+pywebpush
