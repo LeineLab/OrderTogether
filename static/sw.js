@@ -4,13 +4,18 @@ self.addEventListener('push', function (event) {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/static/icon.svg',
-      badge: '/static/icon.svg',
+      icon: '/static/icon-180.png',
+      badge: '/static/icon-180.png',
     })
   );
 });
 
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
-  event.waitUntil(clients.openWindow('/'));
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      if (list.length > 0) return list[0].focus();
+      return clients.openWindow('/');
+    })
+  );
 });
