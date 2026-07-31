@@ -277,8 +277,7 @@
 (function () {
   const ORDER_ID = "{{ order.id }}";
   const ITEMS_URL = "/orders/" + ORDER_ID + "/items";
-  const WS_URL = (location.protocol === "https:" ? "wss:" : "ws:") +
-                 "//" + location.host + "/orders/" + ORDER_ID + "/ws";
+  const SSE_URL  = "/orders/" + ORDER_ID + "/sse";
   {% if is_creator %}
   const LOG_URL = "/orders/" + ORDER_ID + "/log";
   {% endif %}
@@ -351,15 +350,15 @@
   {% endif %}
 
   function connect() {
-    const ws = new WebSocket(WS_URL);
+    const es = new EventSource(SSE_URL);
 
-    ws.onmessage = function (event) {
+    es.onmessage = function (event) {
       try {
         const data = JSON.parse(event.data);
         if (data.deadline) {
           deadlineMs = new Date(data.deadline).getTime();
           {% if not is_creator %}
-          checkDeadline();       // updates display + form visibility
+          checkDeadline();         // updates display + form visibility
           {% else %}
           updateDeadlineDisplay(); // admin: update header display only
           {% endif %}
@@ -370,13 +369,10 @@
       debounce = setTimeout(refresh, 150);
     };
 
-    ws.onclose = function () {
-      // Reconnect after a short back-off
+    es.onerror = function () {
+      // Browser automatically reconnects EventSource; close and reopen to reset
+      es.close();
       setTimeout(connect, 3000);
-    };
-
-    ws.onerror = function () {
-      ws.close();
     };
   }
 

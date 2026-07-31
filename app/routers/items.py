@@ -20,7 +20,7 @@ from app.auth import (
 from app.database import get_db
 from app.models import Order, OrderItem, OrderItemEvent
 from app.templating import render
-from app.ws import manager
+from app.events import manager
 
 
 def _snapshot(item: OrderItem) -> str:

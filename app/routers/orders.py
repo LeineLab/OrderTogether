@@ -24,7 +24,7 @@ from app.database import RECEIPT_DIR, RECEIPT_TTL_DAYS, get_db
 from app.export import export_csv
 from app.models import EmailToken, Order, OrderItem, OrderItemEvent
 from app.templating import render
-from app.ws import manager
+from app.events import manager
 
 router = APIRouter()
 

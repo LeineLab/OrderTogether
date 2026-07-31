@@ -13,7 +13,7 @@ from app.database import RECEIPT_DIR, cleanup_receipts, init_db, migrate_db
 from app.routers import auth as auth_router
 from app.routers import items as items_router
 from app.routers import orders as orders_router
-from app.routers import ws as ws_router
+from app.routers import sse as sse_router
 
 SECRET_KEY = os.getenv("SECRET_KEY", "changeme-please-set-in-env")
 
@@ -46,7 +46,7 @@ templates.env.globals["tz_name"] = TIMEZONE
 app.include_router(orders_router.router)
 app.include_router(items_router.router)
 app.include_router(auth_router.router)
-app.include_router(ws_router.router)
+app.include_router(sse_router.router)
 
 
 async def _receipt_cleanup_loop():
