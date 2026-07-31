@@ -40,15 +40,14 @@ def _load_or_generate_keys() -> tuple:
     try:
         import base64
         from py_vapid import Vapid
-        from cryptography.hazmat.primitives.serialization import (
-            Encoding, NoEncryption, PrivateFormat, PublicFormat,
-        )
+        from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
         v = Vapid()
         v.generate_keys()
-        # Private key as EC PEM (TraditionalOpenSSL = "BEGIN EC PRIVATE KEY", required by pywebpush)
-        private_key = v.private_key.private_bytes(
-            Encoding.PEM, PrivateFormat.TraditionalOpenSSL, NoEncryption()
-        ).decode("utf-8")
+        # Private key as base64url raw scalar — py_vapid.Vapid.from_string() expects this format
+        private_value = v.private_key.private_numbers().private_value
+        private_key = base64.urlsafe_b64encode(
+            private_value.to_bytes(32, "big")
+        ).rstrip(b"=").decode("utf-8")
         # Public key as URL-safe base64 uncompressed point (required by browsers)
         pub_bytes = v.public_key.public_bytes(Encoding.X962, PublicFormat.UncompressedPoint)
         public_key = base64.urlsafe_b64encode(pub_bytes).rstrip(b"=").decode("utf-8")
