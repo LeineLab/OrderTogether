@@ -5,10 +5,10 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import app.push as _push
 from app.auth import get_identity
 from app.database import get_db
 from app.models import PushSubscription
-from app.push import PUSH_ENABLED, VAPID_PUBLIC_KEY
 
 router = APIRouter()
 
@@ -24,14 +24,14 @@ async def service_worker():
 
 @router.get("/push/vapid-public-key")
 async def vapid_public_key():
-    if not PUSH_ENABLED:
+    if not _push.PUSH_ENABLED:
         return JSONResponse({"enabled": False})
-    return JSONResponse({"enabled": True, "publicKey": VAPID_PUBLIC_KEY})
+    return JSONResponse({"enabled": True, "publicKey": _push.VAPID_PUBLIC_KEY})
 
 
 @router.post("/push/subscribe")
 async def subscribe(request: Request, db: AsyncSession = Depends(get_db)):
-    if not PUSH_ENABLED:
+    if not _push.PUSH_ENABLED:
         return Response(status_code=204)
     identity = get_identity(request)
     body = await request.json()
