@@ -51,7 +51,7 @@ async def migrate_db():
 
 
 RECEIPT_DIR = Path("/data/receipts")
-RECEIPT_TTL_DAYS = 7
+RECEIPT_TTL_DAYS = int(os.getenv("RECEIPT_TTL_DAYS", "7"))
 
 
 async def cleanup_receipts():
