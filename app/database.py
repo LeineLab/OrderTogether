@@ -51,7 +51,7 @@ async def migrate_db():
                 pass  # column already exists — SQLite raises OperationalError
 
 
-RECEIPT_DIR = Path("/data/receipts")
+RECEIPT_DIR = Path(os.getenv("DATA_DIR", "/data")) / "receipts"
 RECEIPT_TTL_DAYS = int(os.getenv("RECEIPT_TTL_DAYS", "7"))
 
 

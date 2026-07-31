@@ -11,7 +11,7 @@ VAPID_EMAIL = os.getenv("VAPID_EMAIL", "")
 
 # VAPID keys can be supplied via env vars or are auto-generated on first startup
 # and persisted to /data/vapid_keys.json so they survive container restarts.
-_KEYS_FILE = Path("/data/vapid_keys.json")
+_KEYS_FILE = Path(os.getenv("DATA_DIR", "/data")) / "vapid_keys.json"
 
 VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
 VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "")
@@ -35,11 +35,16 @@ def _load_or_generate_keys() -> tuple:
 
     # Generate new keys
     try:
+        import base64
         from py_vapid import Vapid
+        from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
         v = Vapid()
         v.generate_keys()
-        private_key = v.private_key
-        public_key = v.public_key
+        # Private key as PEM string (accepted by pywebpush)
+        private_key = v.private_pem().decode("utf-8")
+        # Public key as URL-safe base64 uncompressed point (required by browsers)
+        pub_bytes = v.public_key.public_bytes(Encoding.X962, PublicFormat.UncompressedPoint)
+        public_key = base64.urlsafe_b64encode(pub_bytes).rstrip(b"=").decode("utf-8")
         _KEYS_FILE.parent.mkdir(parents=True, exist_ok=True)
         _KEYS_FILE.write_text(json.dumps({
             "private_key": private_key,
