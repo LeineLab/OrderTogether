@@ -143,7 +143,22 @@ async def list_orders(request: Request, db: AsyncSession = Depends(get_db)):
         .where(Order.creator_identifier == identity["id"])
         .order_by(Order.created_at.desc())
     )
-    orders = result.scalars().all()
+    owned_orders = result.scalars().all()
+    owned_ids = {o.id for o in owned_orders}
+
+    # Orders the user participated in (has items) but did not create
+    result2 = await db.execute(
+        select(Order)
+        .options(selectinload(Order.items))
+        .join(OrderItem, OrderItem.order_id == Order.id)
+        .where(
+            OrderItem.person_identifier == identity["id"],
+            Order.creator_identifier != identity["id"],
+        )
+        .distinct()
+        .order_by(Order.created_at.desc())
+    )
+    participated_orders = [o for o in result2.scalars().all() if o.id not in owned_ids]
 
     now = datetime.utcnow()
     base = str(request.base_url).rstrip("/")
@@ -154,12 +169,23 @@ async def list_orders(request: Request, db: AsyncSession = Depends(get_db)):
             "deadline_passed": now > o.deadline,
             "admin_url": f"{base}/orders/{o.id}/admin/{o.admin_token}",
         }
-        for o in orders
+        for o in owned_orders
+    ]
+    participated_rows = [
+        {
+            "order": o,
+            "my_item_count": sum(
+                1 for i in o.items if i.person_identifier == identity["id"]
+            ),
+            "deadline_passed": now > o.deadline,
+        }
+        for o in participated_orders
     ]
     return render("orders_list.html", request, {
         "identity": identity,
         "oidc_enabled": OIDC_ENABLED,
         "order_rows": order_rows,
+        "participated_rows": participated_rows,
         "now": now,
     })
 

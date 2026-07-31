@@ -10,7 +10,9 @@
     </div>
   </div>
 
+  <h2>{{ _("my_orders_created_title") }}</h2>
   {% if order_rows %}
+  <div id="items-table">
   <table class="items-table">
     <thead>
       <tr>
@@ -38,15 +40,58 @@
           {% endif %}
         </td>
         <td class="actions">
-          <a href="/orders/{{ row.order.id }}" class="btn btn-xs">{{ _("view_btn") }}</a>
-          <a href="{{ row.admin_url }}" class="btn btn-xs">{{ _("admin_btn") }}</a>
+          <div>
+            <a href="/orders/{{ row.order.id }}" class="btn btn-xs">{{ _("view_btn") }}</a>
+            <a href="{{ row.admin_url }}" class="btn btn-xs">{{ _("admin_btn") }}</a>
+          </div>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
   {% else %}
   <p class="empty-state">{{ _("my_orders_empty") }}</p>
+  {% endif %}
+
+  {% if participated_rows %}
+  <h2 style="margin-top:2rem">{{ _("my_orders_participated_title") }}</h2>
+  <div id="items-table-participated">
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th>{{ _("col_vendor") }}</th>
+        <th>{{ _("col_organiser") }}</th>
+        <th>{{ _("col_deadline") }}</th>
+        <th>{{ _("col_my_items") }}</th>
+        <th>{{ _("col_status") }}</th>
+        <th>{{ _("col_actions") }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in participated_rows %}
+      <tr>
+        <td><a href="/orders/{{ row.order.id }}">{{ row.order.vendor_name }}</a></td>
+        <td>{{ row.order.creator_name }}</td>
+        <td>{{ row.order.deadline | localtime }} {{ tz_name }}</td>
+        <td>{{ row.my_item_count }}</td>
+        <td>
+          {% if row.deadline_passed %}
+            <span class="badge badge-closed">{{ _("status_closed") }}</span>
+          {% else %}
+            <span class="badge badge-open">{{ _("status_open") }}</span>
+          {% endif %}
+        </td>
+        <td class="actions">
+          <div>
+            <a href="/orders/{{ row.order.id }}" class="btn btn-xs">{{ _("view_btn") }}</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
   {% endif %}
 
 </div>
