@@ -237,6 +237,26 @@
         </div>
         <button type="submit" class="btn btn-sm btn-primary">{{ _("save_settings_btn") }}</button>
       </form>
+
+      {% if oidc_enabled and transfer_candidates %}
+      <h4>{{ _("transfer_title") }}</h4>
+      <p class="hint">{{ _("transfer_hint") }}</p>
+      <form action="/orders/{{ order.id }}/transfer" method="post"
+            onsubmit="return confirm('{{ _('transfer_confirm') }}')">
+        <div class="form-group">
+          <label>{{ _("transfer_new_owner_label") }}</label>
+          <select name="target_identifier" required>
+            {% for c in transfer_candidates %}
+            <option value="{{ c.identifier }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-sm btn-danger">{{ _("transfer_btn") }}</button>
+      </form>
+      {% elif oidc_enabled %}
+      <h4>{{ _("transfer_title") }}</h4>
+      <p class="hint">{{ _("transfer_no_candidates") }}</p>
+      {% endif %}
     </aside>
     {% endif %}
   </div>

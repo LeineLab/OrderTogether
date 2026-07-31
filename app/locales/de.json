@@ -132,6 +132,16 @@
 
   "vendor_url_edit_hint": "Shop- / Men\u00fc-Link aktualisieren",
 
+  "transfer_title": "Eigent\u00fcmer\u00fcbertragung",
+  "transfer_hint": "W\u00e4hle einen Teilnehmer als neuen Admin. Dein Admin-Zugang wird sofort entzogen und ein neuer Admin-Link erstellt.",
+  "transfer_new_owner_label": "Neuer Eigent\u00fcmer",
+  "transfer_btn": "Eigent\u00fcmerschaft \u00fcbertragen",
+  "transfer_confirm": "Bist du sicher? Du verlierst sofort den Admin-Zugang zu dieser Bestellung.",
+  "transfer_complete_title": "Eigent\u00fcmerschaft \u00fcbertragen",
+  "transfer_complete_body": "{name} ist jetzt der Admin dieser Bestellung.",
+  "transfer_complete_hint": "Teile den neuen Admin-Link mit der Person, damit sie die Bestellung verwalten kann.",
+  "transfer_back_btn": "Zur\u00fcck zur Bestellung",
+
   "event_log_title": "\u00c4nderungsprotokoll",
   "log_col_time": "Zeit",
   "log_col_who": "Wer",
@@ -139,5 +149,7 @@
   "log_col_item": "Artikel",
   "log_action_edit": "Bearbeitet",
   "log_action_delete": "Gel\u00f6scht",
-  "log_empty": "Noch keine \u00c4nderungen aufgezeichnet."
+  "log_empty": "Noch keine \u00c4nderungen aufgezeichnet.",
+
+  "transfer_no_candidates": "Noch keine anderen Teilnehmer haben Artikel hinzugef\u00fcgt."
 }

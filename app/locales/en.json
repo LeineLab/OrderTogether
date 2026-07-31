@@ -132,6 +132,16 @@
 
   "vendor_url_edit_hint": "Update the store / menu link",
 
+  "transfer_title": "Transfer ownership",
+  "transfer_hint": "Select a participant to become the new admin. Your admin access will be revoked immediately and a new admin link will be generated.",
+  "transfer_new_owner_label": "New owner",
+  "transfer_btn": "Transfer ownership",
+  "transfer_confirm": "Are you sure? You will lose admin access to this order.",
+  "transfer_complete_title": "Ownership transferred",
+  "transfer_complete_body": "{name} is now the admin of this order.",
+  "transfer_complete_hint": "Share the new admin link with them so they can manage the order.",
+  "transfer_back_btn": "Back to order",
+
   "event_log_title": "Change log",
   "log_col_time": "Time",
   "log_col_who": "Who",
@@ -139,5 +149,7 @@
   "log_col_item": "Item",
   "log_action_edit": "Edited",
   "log_action_delete": "Deleted",
-  "log_empty": "No changes recorded yet."
+  "log_empty": "No changes recorded yet.",
+
+  "transfer_no_candidates": "No other participants have added items yet."
 }

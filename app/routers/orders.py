@@ -52,6 +52,22 @@ def _order_context(request: Request, order: Order, identity: dict) -> dict:
         order.receipt_uploaded_at + timedelta(days=RECEIPT_TTL_DAYS)
         if order.receipt_uploaded_at else None
     )
+
+    # Transfer candidates: distinct participants (excl. creator) for ownership transfer
+    transfer_candidates: list = []
+    if is_admin and OIDC_ENABLED and order.creator_identifier:
+        seen: set = set()
+        for item in order.items:
+            if (
+                item.person_identifier != order.creator_identifier
+                and item.person_identifier not in seen
+            ):
+                seen.add(item.person_identifier)
+                transfer_candidates.append({
+                    "identifier": item.person_identifier,
+                    "name": item.person_name,
+                })
+
     return {
         "request": request,
         "order": order,
@@ -67,6 +83,7 @@ def _order_context(request: Request, order: Order, identity: dict) -> dict:
         "can_mark_paid": _can_mark_paid,
         "receipt_expires_at": receipt_expires_at,
         "receipt_upload_enabled": RECEIPT_UPLOAD_ENABLED,
+        "transfer_candidates": transfer_candidates,
     }
 
 
@@ -305,6 +322,68 @@ async def create_token(
         "partials/token_result.html",
         request,
         {"display_name": display_name, "join_url": join_url},
+    )
+
+
+# ─── Transfer ownership ──────────────────────────────────────────────────────
+
+
+@router.post("/orders/{order_id}/transfer", response_class=HTMLResponse)
+async def transfer_order(
+    request: Request,
+    order_id: str,
+    target_identifier: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    order = await _get_order(order_id, db)
+    identity = get_identity(request)
+
+    if not is_order_admin(request, order):
+        raise HTTPException(status_code=403, detail="Only the admin can transfer ownership")
+    if identity["type"] != "oidc":
+        raise HTTPException(status_code=403, detail="Only OIDC users can transfer ownership")
+    if not target_identifier or target_identifier == order.creator_identifier:
+        raise HTTPException(status_code=400, detail="Invalid transfer target")
+
+    # Verify target has at least one item and look up their name
+    result = await db.execute(
+        select(OrderItem)
+        .where(
+            OrderItem.order_id == order_id,
+            OrderItem.person_identifier == target_identifier,
+        )
+        .limit(1)
+    )
+    target_item = result.scalar_one_or_none()
+    if target_item is None:
+        raise HTTPException(status_code=400, detail="Target user has no items in this order")
+
+    new_owner_name = target_item.person_name
+    order.creator_identifier = target_identifier
+    order.creator_name = new_owner_name
+    order.admin_token = str(uuid.uuid4())
+    await db.commit()
+
+    # Revoke current session's admin rights for this order immediately
+    admin_orders: list = request.session.get("admin_orders", [])
+    if order_id in admin_orders:
+        admin_orders.remove(order_id)
+        request.session["admin_orders"] = admin_orders
+
+    new_admin_url = (
+        str(request.base_url).rstrip("/")
+        + f"/orders/{order_id}/admin/{order.admin_token}"
+    )
+    return render(
+        "transfer_complete.html",
+        request,
+        {
+            "order": order,
+            "new_owner_name": new_owner_name,
+            "new_admin_url": new_admin_url,
+            "identity": identity,
+            "oidc_enabled": OIDC_ENABLED,
+        },
     )
 
 

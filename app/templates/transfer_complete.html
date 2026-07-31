@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ _("transfer_complete_title") }} — OrderTogether{% endblock %}
+{% block content %}
+<div class="container narrow">
+  <div class="card" style="text-align:center;padding:2rem">
+    <h1>{{ _("transfer_complete_title") }}</h1>
+    <p style="margin:1rem 0">{{ _("transfer_complete_body", name=new_owner_name) }}</p>
+    <p class="hint" style="margin-bottom:1.5rem">{{ _("transfer_complete_hint") }}</p>
+
+    <div class="share-url-row" style="margin-bottom:1.5rem">
+      <input type="text" value="{{ new_admin_url }}" readonly id="new-admin-url">
+      <button onclick="navigator.clipboard.writeText(document.getElementById('new-admin-url').value)"
+              class="btn btn-sm">{{ _("copy_btn") }}</button>
+    </div>
+
+    <a href="/orders/{{ order.id }}" class="btn btn-primary">{{ _("transfer_back_btn") }}</a>
+  </div>
+</div>
+{% endblock %}
