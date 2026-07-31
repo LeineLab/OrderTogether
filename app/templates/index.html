@@ -6,6 +6,27 @@
   <p class="lead">{{ _("home_subtitle") }}</p>
 
   <form action="/orders" method="post" class="card">
+    {% if shop_suggestions %}
+    <div class="form-group">
+      <label for="shop_picker">{{ _("shop_picker_label") }}</label>
+      <select id="shop_picker" onchange="
+        var s = this.options[this.selectedIndex];
+        if (s.value) {
+          document.getElementById('vendor_name').value = s.dataset.name;
+          document.getElementById('vendor_url').value = s.value;
+        } else {
+          document.getElementById('vendor_name').value = '';
+          document.getElementById('vendor_url').value = '';
+        }
+      ">
+        <option value="">{{ _("shop_picker_new") }}</option>
+        {% for shop in shop_suggestions %}
+        <option value="{{ shop.url }}" data-name="{{ shop.name }}">{{ shop.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+
     <div class="form-group">
       <label for="vendor_name">{{ _("vendor_name_label") }}</label>
       <input type="text" id="vendor_name" name="vendor_name" required

@@ -9,6 +9,8 @@
   "vendor_name_label": "Vendor / Store name",
   "vendor_name_placeholder": "e.g. Pizza Palace",
   "vendor_url_label": "Menu / Store URL",
+  "shop_picker_label": "Previous shops",
+  "shop_picker_new": "\u2014 new shop \u2014",
   "deadline_label": "Order deadline",
   "invite_only_label": "Invite-only",
   "invite_only_hint": "only people with an invite link can participate",

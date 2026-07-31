@@ -9,6 +9,8 @@
   "vendor_name_label": "H\u00e4ndler / Shop-Name",
   "vendor_name_placeholder": "z.B. Pizza Palace",
   "vendor_url_label": "Men\u00fc / Shop-URL",
+  "shop_picker_label": "Bisherige Shops",
+  "shop_picker_new": "\u2014 neuer Shop \u2014",
   "deadline_label": "Bestellschluss",
   "invite_only_label": "Nur auf Einladung",
   "invite_only_hint": "nur Personen mit einem Einladungslink k\u00f6nnen teilnehmen",

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -19,7 +19,7 @@ from app.auth import (
     set_order_admin,
     sign_token,
 )
-from app.config import LOCAL_TZ, RECEIPT_UPLOAD_ENABLED
+from app.config import LOCAL_TZ, PREDEFINED_SHOPS, RECEIPT_UPLOAD_ENABLED
 from app.database import RECEIPT_DIR, RECEIPT_TTL_DAYS, get_db
 from app.export import export_csv
 from app.models import EmailToken, Order, OrderItem, OrderItemEvent
@@ -83,10 +83,30 @@ async def index(request: Request, db: AsyncSession = Depends(get_db)):
         .order_by(Order.deadline.asc())
     )
     public_orders = result.scalars().all()
+
+    # Build shop suggestions for OIDC users: past shops ranked by use count
+    shop_suggestions: list = []
+    if identity["type"] == "oidc":
+        rows = await db.execute(
+            select(Order.vendor_name, Order.vendor_url, func.count().label("cnt"))
+            .where(Order.creator_identifier == identity["id"])
+            .group_by(Order.vendor_name, Order.vendor_url)
+            .order_by(func.count().desc())
+        )
+        shop_suggestions = [
+            {"name": r.vendor_name, "url": r.vendor_url} for r in rows
+        ]
+        # Append predefined shops not already in the user's list (match by URL)
+        existing_urls = {s["url"] for s in shop_suggestions}
+        for shop in PREDEFINED_SHOPS:
+            if shop.get("url") not in existing_urls:
+                shop_suggestions.append(shop)
+
     return render("index.html", request, {
         "identity": identity,
         "oidc_enabled": OIDC_ENABLED,
         "public_orders": public_orders,
+        "shop_suggestions": shop_suggestions,
         "now": now,
     })
 
