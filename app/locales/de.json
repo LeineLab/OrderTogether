@@ -8,6 +8,8 @@
   "home_subtitle": "Erstelle einen gemeinsamen Bestelllink, lade Teilnehmer ein und sammle alle Artikel.",
   "vendor_name_label": "H\u00e4ndler / Shop-Name",
   "vendor_name_placeholder": "z.B. Pizza Palace",
+  "creator_name_label": "Dein Name (Organisator)",
+  "creator_name_placeholder": "Anonym",
   "vendor_url_label": "Men\u00fc / Shop-URL",
   "shop_picker_label": "Bisherige Shops",
   "shop_picker_new": "\u2014 neuer Shop \u2014",
@@ -19,6 +21,7 @@
   "create_order_btn": "Bestellung erstellen \u2192",
 
   "open_store_link": "Shop / Men\u00fc \u00f6ffnen \u2197",
+  "organiser_label": "Organisator:",
   "deadline_prefix": "Bestellschluss:",
   "status_closed": "Geschlossen",
   "status_open": "Offen",

@@ -8,6 +8,8 @@
   "home_subtitle": "Set up a shared order link, invite participants, and collect everyone's items.",
   "vendor_name_label": "Vendor / Store name",
   "vendor_name_placeholder": "e.g. Pizza Palace",
+  "creator_name_label": "Your name (organiser)",
+  "creator_name_placeholder": "Anonymous",
   "vendor_url_label": "Menu / Store URL",
   "shop_picker_label": "Previous shops",
   "shop_picker_new": "\u2014 new shop \u2014",
@@ -19,6 +21,7 @@
   "create_order_btn": "Create Order \u2192",
 
   "open_store_link": "Open store / menu \u2197",
+  "organiser_label": "Organiser:",
   "deadline_prefix": "Deadline:",
   "status_closed": "Closed",
   "status_open": "Open",

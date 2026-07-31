@@ -10,6 +10,8 @@
       <p>
         <a href="{{ order.vendor_url }}" target="_blank" rel="noopener">{{ _("open_store_link") }}</a>
         &nbsp;·&nbsp;
+        {{ _("organiser_label") }} <strong>{{ order.creator_name }}</strong>
+        &nbsp;·&nbsp;
         {{ _("deadline_prefix") }} <strong id="deadline-display">{{ order.deadline | localtime }} {{ tz_name }}</strong>
         {% if now > order.deadline %}
           <span id="deadline-status" class="badge badge-closed">{{ _("status_closed") }}</span>

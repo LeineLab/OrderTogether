@@ -153,6 +153,7 @@ async def create_order(
     vendor_name: str = Form(...),
     vendor_url: str = Form(...),
     deadline: str = Form(...),
+    creator_name: str = Form(""),
     invite_only: bool = Form(False),
     allow_oidc: bool = Form(False),
     privacy_mode: bool = Form(False),
@@ -175,7 +176,7 @@ async def create_order(
         vendor_name=vendor_name,
         vendor_url=vendor_url,
         deadline=dt,
-        creator_name=identity["name"] or "Admin",
+        creator_name=creator_name.strip() or identity["name"] or "Anonymous",
         # Store identity id so the creator is recognised as admin across sessions.
         # For anon users this is a UUID that gets replaced with the OIDC sub on login.
         creator_identifier=identity["id"],
