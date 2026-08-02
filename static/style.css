@@ -551,6 +551,9 @@ h1 { font-size: 1.75rem; margin-bottom: .5rem; }
 [data-theme="dark"] .btn-paid:hover { background: #1f4a35; }
 [data-theme="dark"] .btn-item-ordered { background: #162033; border-color: #4c9eff; color: #4c9eff; }
 [data-theme="dark"] .btn-item-ordered:hover { background: #1c2d45; }
+[data-theme="dark"] .identity-badge.oidc  { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .identity-badge.token { background: #3a2e10; color: #fcd34d; }
+[data-theme="dark"] .identity-badge.anon  { background: #2c2e33; color: var(--color-muted); }
 [data-theme="dark"] .badge-open { background: #1a3a2a; color: var(--color-open); }
 [data-theme="dark"] .badge-closed { background: #3d1515; color: var(--color-closed); }
 [data-theme="dark"] .badge-invite { background: #2a1f40; color: #b197fc; }
