@@ -38,7 +38,7 @@
           {% endif %}
         {% endif %}
         {% if oidc_enabled and (not identity or identity.type != "oidc") %}
-          <a href="/auth/login" class="btn btn-sm btn-primary">{{ _("login") }}</a>
+          <a href="/auth/login?next={{ (request.url.path ~ ('?' ~ request.url.query if request.url.query else ''))|urlencode }}" class="btn btn-sm btn-primary">{{ _("login") }}</a>
         {% endif %}
       </div>
     </nav>

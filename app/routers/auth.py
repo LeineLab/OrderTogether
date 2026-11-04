@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import update
@@ -10,10 +12,24 @@ from app.models import Order, OrderItem
 router = APIRouter(prefix="/auth")
 
 
+def _safe_next(url: Optional[str]) -> str:
+    """Allow only same-site relative paths (prevents open redirects)."""
+    if (
+        url
+        and url.startswith("/")
+        and not url.startswith("//")
+        and "\\" not in url
+        and not url.startswith("/auth/")
+    ):
+        return url
+    return "/"
+
+
 @router.get("/login")
-async def login(request: Request):
+async def login(request: Request, next: Optional[str] = None):
     if not OIDC_ENABLED or oauth is None:
-        return RedirectResponse("/")
+        return RedirectResponse(_safe_next(next))
+    request.session["login_next"] = _safe_next(next)
     return await oauth.oidc.authorize_redirect(request, OIDC_REDIRECT_URI)
 
 
@@ -55,7 +71,7 @@ async def callback(request: Request, db: AsyncSession = Depends(get_db)):
             await db.commit()
 
     set_oidc_identity(request, sub, name)
-    return RedirectResponse("/")
+    return RedirectResponse(_safe_next(request.session.pop("login_next", None)), status_code=303)
 
 
 @router.get("/logout")
